@@ -38,6 +38,7 @@ $rsType = $queryType->fetchAll();
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
+                <title>แก้ไขข้อมูลสินค้า-ธรรมเจริญพาณิช</title>
                     <h1> แก้ไขข้อมูลสินค้า </h1>
                 </div>
             </div>

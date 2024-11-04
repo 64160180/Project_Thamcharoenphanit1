@@ -1,3 +1,10 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <title>รถเข็นสินค้า-ธรรมเจริญพาณิช</title>
+</head>
+
 <?php
 // ตรวจสอบว่ามี session ที่ถูกเริ่มต้นแล้วหรือยัง หากยังให้เริ่มต้น session
 if (session_status() === PHP_SESSION_NONE) {
@@ -5,10 +12,38 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once '../config/condb.php';
 
-// แสดงข้อผิดพลาด (สำหรับการพัฒนา)
-// ini_set('display_errors', 1);
-// ini_set('display_startup_errors', 1);
-// error_reporting(E_ALL);
+// ตรวจสอบการเพิ่ม/ลดจำนวนหรือการลบสินค้า
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['update_quantity'])) {
+        // อัปเดตจำนวนสินค้า
+        $productId = $_POST['product_id'];
+        $newQuantity = $_POST['quantity'];
+
+        // คิวรีจำนวนสินค้าที่มีในระบบ
+        $stmt = $condb->prepare("SELECT product_qty FROM tbl_product WHERE id = :id");
+        $stmt->bindParam(':id', $productId, PDO::PARAM_INT);
+        $stmt->execute();
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($product) {
+            $availableQty = $product['product_qty']; // จำนวนสินค้าที่มีในระบบ
+
+            if ($newQuantity > $availableQty) {
+                echo "<div class='alert alert-danger text-center' role='alert'>
+                        <strong>❌ คุณเลือกจำนวนสินค้ามากกว่าจำนวนที่มีอยู่ในสต็อก!!!</strong>
+                      </div>";
+            } elseif ($newQuantity > 0) {
+                $_SESSION['cart'][$productId] = $newQuantity;
+            } else {
+                unset($_SESSION['cart'][$productId]); // ลบสินค้าออกหากจำนวนเป็น 0 หรือติดลบ
+            }
+        }
+    } elseif (isset($_POST['remove_product'])) {
+        // ลบสินค้าจากรถเข็น
+        $productId = $_POST['product_id'];
+        unset($_SESSION['cart'][$productId]);
+    }
+} //เพิ่มลด/อัพเดท/ลบ
 
 // ตรวจสอบว่ารถเข็นมีสินค้าอยู่หรือไม่
 if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
@@ -33,11 +68,11 @@ $products = $query->fetchAll(PDO::FETCH_ASSOC);
 <!DOCTYPE html>
 <html lang="th">
 <head>
+    <title>รถเข็นสินค้า-ธรรมเจริญพาณิช</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>รถเข็นสินค้า</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/admin/css/cart.css"> 
+    <link rel="stylesheet" href="/admin/css/cart.css">
 </head>
 <body>
     <div class="container mt-5">
@@ -52,6 +87,7 @@ $products = $query->fetchAll(PDO::FETCH_ASSOC);
                     <th>ราคารวม</th>
                     <th>กำไร</th>
                     <th>จำนวน</th>
+                    <th>การจัดการ</th>
                 </tr>
             </thead>
             <tbody>
@@ -76,7 +112,19 @@ $products = $query->fetchAll(PDO::FETCH_ASSOC);
                     <td><?= number_format($product['product_price'], 2); ?> บาท</td>
                     <td><?= number_format($totalPrice, 2); ?> บาท</td>
                     <td><?= number_format($profit, 2); ?> บาท</td>
-                    <td><?= $quantity; ?></td>
+                    <td>
+                        <form action="" method="post" class="d-inline">
+                            <input type="hidden" name="product_id" value="<?= $product['id']; ?>">
+                            <input type="number" name="quantity" value="<?= $quantity; ?>" min="1" class="form-control d-inline w-50">
+                            <button type="submit" name="update_quantity" class="btn btn-warning btn-sm">อัปเดต</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="" method="post" class="d-inline">
+                            <input type="hidden" name="product_id" value="<?= $product['id']; ?>">
+                            <button type="submit" name="remove_product" class="btn btn-danger btn-sm">ลบ</button>
+                        </form>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

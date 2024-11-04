@@ -39,6 +39,7 @@ foreach ($products as $product) {
     $updateProduct->execute();
 }
 
+
 // เคลียร์รถเข็น
 unset($_SESSION['cart']);
 

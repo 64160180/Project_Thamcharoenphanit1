@@ -1,7 +1,8 @@
 <?php
 // ตรวจสอบว่ามี session ที่ถูกเริ่มต้นแล้วหรือยัง หากยังให้เริ่มต้น session
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    
+    // session_start();
 }
 
 
@@ -40,13 +41,15 @@ if (session_status() === PHP_SESSION_NONE) {
                         <p>หน้าแรก</p>
                     </a>
                 </li>
+
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
                 <li class="nav-item">
                     <a href="mainprofit.php" class="nav-link">
                         <i class="nav-icon fas fa-chart-pie"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
-                
+                <?php } ?>
 
                 <!-- ตรวจสอบ role ก่อนแสดงเมนู จัดการสมาชิก -->
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
@@ -84,11 +87,12 @@ if (session_status() === PHP_SESSION_NONE) {
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/" class="nav-link">
+                    <a href="calendar.php" class="nav-link">
                         <i class="nav-icon fas fa-edit"></i>
                         <p>ปฏิทิน</p>
                     </a>
                 </li>
+
             </ul>
         </nav>
         <!-- /.sidebar-menu -->

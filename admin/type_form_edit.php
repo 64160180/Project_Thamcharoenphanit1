@@ -27,6 +27,7 @@ if(isset($_GET['id']) && $_GET['act'] == 'edit'){
  <div class="container-fluid">
    <div class="row mb-2">
      <div class="col-sm-6">
+      <title>แก้ไขข้อมูลหมวดหมู่สินค้า-ธรรมเจริญพาณิช</title>
        <h1>ฟอร์มแก้ไขข้อมูลหมวดหมู่สินค้า</h1>
      </div>
    </div>

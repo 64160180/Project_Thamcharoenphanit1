@@ -26,6 +26,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
+                <title>จัดการแก้ไข-ธรรมเจริญพาณิช</title>
                     <h1> แก้ไขข้อมูลพนักงาน </h1>
                 </div>
             </div>

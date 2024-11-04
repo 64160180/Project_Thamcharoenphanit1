@@ -1,8 +1,8 @@
 <?php
 //ini_set('display_errors', 0);
-$servername = "localhost";
-$username = "root";
-$password = ""; //ถ้าไม่ได้ตั้งรหัสผ่านให้ลบ yourpassword ออก
+$servername = "db";
+$username = "user";
+$password = "user_password"; //ถ้าไม่ได้ตั้งรหัสผ่านให้ลบ user_password ออก
 
 try {
   $condb = new PDO("mysql:host=$servername;dbname=inventory_db;charset=utf8", $username, $password);

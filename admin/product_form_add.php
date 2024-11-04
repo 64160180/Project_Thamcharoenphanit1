@@ -12,6 +12,7 @@ $rsType = $queryType->fetchAll();
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
+                <title>เพิ่มข้อมูลสินค้า-ธรรมเจริญพาณิช</title>
                     <h1>เพิ่มข้อมูลสินค้า</h1>
                 </div>
             </div>
@@ -91,12 +92,19 @@ $rsType = $queryType->fetchAll();
                                                     <label class="custom-file-label" for="exampleInputFile">Choose
                                                         file</label>
                                                 </div>
-                                                <div class="input-group-append">
-                                                    <span class="input-group-text">Upload</span>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <script>
+                                        // ดักจับเหตุการณ์เมื่อมีการเปลี่ยนแปลงของ input type="file"
+                                        document.getElementById('exampleInputFile').addEventListener('change', function () {
+                                            // ตรวจสอบว่ามีไฟล์ที่ถูกเลือกหรือไม่
+                                            if (this.files && this.files[0]) {
+                                                // แสดงชื่อไฟล์ใน label
+                                                this.nextElementSibling.textContent = this.files[0].name;
+                                            }
+                                        });
+                                    </script>
 
                                     <div class="form-group row">
                                         <label class="col-sm-2"></label>

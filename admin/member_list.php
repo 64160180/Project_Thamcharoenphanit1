@@ -10,7 +10,9 @@ $rsMember = $queryMember->fetchAll();
 // exit;
 
 ?>
-
+<!DOCTYPE html>
+<html lang="th">
+<head>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -18,8 +20,10 @@ $rsMember = $queryMember->fetchAll();
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>จัดการข้อมูลสมาชิก
+          <title>จัดการข้อมูลสมาชิก-ธรรมเจริญพาณิช</title>
 
+</head>
+            <h1>จัดการข้อมูลสมาชิก
             <a href="member.php?act=add" class="btn btn-primary">+เพิ่มข้อมูล</a>
             </h1>
           </div>

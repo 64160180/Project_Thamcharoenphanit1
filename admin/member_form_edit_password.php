@@ -19,6 +19,7 @@ if (isset($_GET['id']) && $_GET['act'] == 'editPwd') {
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
+                <title>จัดการแก้ไขรหัสผ่าน-ธรรมเจริญพาณิช</title>
                     <h1> แก้ไขรหัสผ่าน </h1>
                 </div>
             </div>
