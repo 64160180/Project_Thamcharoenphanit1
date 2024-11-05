@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db
--- Generation Time: Nov 04, 2024 at 11:31 AM
+-- Generation Time: Nov 05, 2024 at 12:00 PM
 -- Server version: 5.7.44
 -- PHP Version: 8.2.8
 
@@ -67,6 +67,28 @@ INSERT INTO `tbl_member` (`id`, `username`, `password`, `title_name`, `name`, `s
 (1, 'admin@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'นาย', 'เกรียงไกร', 'ธนูธรรม', 'admin', '2024-09-16 15:09:35'),
 (2, 'user@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', 'นาย', 'ปัณณทัต', 'ธนูธรรม', 'user', '2024-09-16 15:10:21'),
 (8, 'admin4@gmail.com', '7110eda4d09e062aa5e4a390b0a572ac0d2c0220', 'นาง', 'yada', 'sss', 'admin', '2024-10-30 18:03:33');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_newproduct`
+--
+
+CREATE TABLE `tbl_newproduct` (
+  `id` int(11) NOT NULL,
+  `newproduct_name` varchar(200) NOT NULL,
+  `newcost_price` decimal(10,2) NOT NULL,
+  `newproduct_price` decimal(10,2) NOT NULL,
+  `newproduct_qty` int(3) NOT NULL,
+  `dateCreate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `tbl_newproduct`
+--
+
+INSERT INTO `tbl_newproduct` (`id`, `newproduct_name`, `newcost_price`, `newproduct_price`, `newproduct_qty`, `dateCreate`) VALUES
+(65, 'jj', 30.00, 50.00, 100, '2024-11-05 11:07:27');
 
 -- --------------------------------------------------------
 
@@ -139,8 +161,7 @@ INSERT INTO `tbl_order` (`id`, `product_id`, `product_name`, `cost_price`, `sell
 (164, 59, 'asdasdasd', 32.00, 40.00, '2024-11-04 09:17:07', 1),
 (169, 60, 'pong', 23.00, 30.00, '2024-11-04 09:57:33', 9),
 (170, 59, 'asdasdasd', 32.00, 40.00, '2024-11-04 10:02:43', 3),
-(171, 60, 'pong', 23.00, 30.00, '2024-11-04 10:06:19', 1),
-(172, 61, 'jj', 20.13, 30.00, '2024-11-04 11:30:03', 1);
+(171, 60, 'pong', 23.00, 30.00, '2024-11-04 10:06:19', 1);
 
 --
 -- Triggers `tbl_order`
@@ -224,8 +245,7 @@ INSERT INTO `tbl_order_eoq` (`id`, `product_id`, `product_name`, `cost_price`, `
 (46, 26, 'ท่อ PVC 3/4*8.5', 49.00, 65.00, 1),
 (70, 60, 'pong', 23.00, 30.00, 9),
 (71, 59, 'asdasdasd', 32.00, 40.00, 3),
-(72, 60, 'pong', 23.00, 30.00, 1),
-(73, 61, 'jj', 20.13, 30.00, 1);
+(72, 60, 'pong', 23.00, 30.00, 1);
 
 -- --------------------------------------------------------
 
@@ -279,7 +299,7 @@ INSERT INTO `tbl_product` (`id`, `ref_type_id`, `product_name`, `product_qty`, `
 (45, 4, 'หลอดไฟ Panasonic LED', 10, 60.00, 120.00, '139936493620240918_182919.jpg', '2024-09-18 16:21:10'),
 (59, 12, 'asdasdasd', 105, 32.00, 40.00, '206287269820241104_085101.png', '2024-11-04 08:51:01'),
 (60, 11, 'pong', 99, 23.00, 30.00, '157122992920241104_085156.png', '2024-11-04 08:51:56'),
-(61, 14, 'jj', 11, 20.13, 30.00, '171891812420241104_112957.jpg', '2024-11-04 11:29:57');
+(61, 14, 'jj', 100, 30.00, 50.00, '171891812420241104_112957.jpg', '2024-11-04 11:29:57');
 
 -- --------------------------------------------------------
 
@@ -305,7 +325,8 @@ INSERT INTO `tbl_type` (`type_id`, `type_name`, `type_minimum`) VALUES
 (9, 'น้ำมันเครื่อง', 5),
 (11, 'ป้อง', 10),
 (12, 'pong11111111', 29),
-(14, 'yada', 12);
+(14, 'yada', 12),
+(15, 'pongpao', 20);
 
 --
 -- Indexes for dumped tables
@@ -317,6 +338,12 @@ INSERT INTO `tbl_type` (`type_id`, `type_name`, `type_minimum`) VALUES
 ALTER TABLE `tbl_member`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`username`);
+
+--
+-- Indexes for table `tbl_newproduct`
+--
+ALTER TABLE `tbl_newproduct`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `tbl_order`
@@ -357,28 +384,34 @@ ALTER TABLE `tbl_member`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
+-- AUTO_INCREMENT for table `tbl_newproduct`
+--
+ALTER TABLE `tbl_newproduct`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+
+--
 -- AUTO_INCREMENT for table `tbl_order`
 --
 ALTER TABLE `tbl_order`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=173;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=174;
 
 --
 -- AUTO_INCREMENT for table `tbl_order_eoq`
 --
 ALTER TABLE `tbl_order_eoq`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- AUTO_INCREMENT for table `tbl_product`
 --
 ALTER TABLE `tbl_product`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
 -- AUTO_INCREMENT for table `tbl_type`
 --
 ALTER TABLE `tbl_type`
-  MODIFY `type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Constraints for dumped tables

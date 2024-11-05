@@ -23,7 +23,7 @@ if(isset($_GET['id']) && $_GET['act']=='delete'){
                 }, 1000);
             </script>';
         } else {
-           
+
 
             // ลบข้อมูลออกจาก tbl_product
             $stmtDelProduct = $condb->prepare('DELETE FROM tbl_product WHERE id=:id');

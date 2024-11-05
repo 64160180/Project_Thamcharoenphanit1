@@ -33,7 +33,8 @@ $rstype = $querytype->fetchAll();
                                 <thead>
                                     <tr class="table-info">
                                         <th width="5%" class="text-center">No.</th>
-                                        <th width="75%">หมวดหมู่สินค้า</th>
+                                        <th width="55%">หมวดหมู่สินค้า</th>
+                                        <th width="10%" class="text-center">จำนวนขั้นต่ำ</th>
                                         <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
                                             <th width="10%" class="text-center">แก้ไขขั้นต่ำสินค้า</th>
                                             <th width="5%" class="text-center">แก้ไข</th> 
@@ -48,6 +49,8 @@ $rstype = $querytype->fetchAll();
                                         <tr>
                                             <td align="center"><?php echo $i++; ?></td>
                                             <td><?= $row['type_name']; ?></td>
+
+                                            <td align="center"><?= $row['type_minimum']; ?></td>
                                             
                                             <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
                                             <td align="center">

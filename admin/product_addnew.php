@@ -15,16 +15,25 @@ if(empty($_SESSION['id']) && empty($_SESSION['name']) && empty($_SESSION['surnam
                 title: "คุณไม่มีสิทธิ์ใช้งานหน้านี้",
                 type: "error"
                 }, function() {
-                window.location = "../index.php"; //หน้าที่ต้องการให้กระโดดไป
+                window.location = "index.php"; //หน้าที่ต้องการให้กระโดดไป
                 });
                 }, 1000);
                 </script>';
             exit();
 }
+  include 'header.php';
+  include 'navbar.php';
+  include 'sidebar_menu.php';
 
-    include 'header.php';
-    include 'navbar.php';
-    include 'sidebar_menu.php';  
-    include 'index_dashboard.php';
-    include 'footer.php';
+  $act = (isset($_GET['act']) ? $_GET['act'] : '');
+
+  //สร้างเงื่อนไขในการเรียกใช้ไฟล์
+  include 'product_newproduct.php';
+
+  include 'footer.php';
+
 ?>
+
+   
+ 
+  
