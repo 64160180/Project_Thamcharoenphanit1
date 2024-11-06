@@ -38,7 +38,7 @@ $rsType = $queryType->fetchAll();
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                <title>แก้ไขข้อมูลสินค้า-ธรรมเจริญพาณิช</title>
+                    <title>แก้ไขข้อมูลสินค้า-ธรรมเจริญพาณิช</title>
                     <h1> แก้ไขข้อมูลสินค้า </h1>
                 </div>
             </div>
@@ -77,30 +77,6 @@ $rsType = $queryType->fetchAll();
                                         </div>
                                     </div>
 
-                                    <!-- จำนวนสินค้า -->
-                                    <div class="form-group row">
-                                        <label class="col-sm-2">จำนวนสินค้า</label>
-                                        <div class="col-sm-4">
-                                            <input type="number" name="product_qty" class="form-control" min="0" max="999" value="<?php echo $rowProduct['product_qty']?>">
-                                        </div>
-                                    </div>
-
-                                    <!-- ราคาทุน -->
-                                    <div class="form-group row">
-                                        <label class="col-sm-2">ราคาทุน</label>
-                                        <div class="col-sm-4">
-                                            <input type="number" step="0.01" name="cost_price" class="form-control" min="0" max="99999" value="<?php echo $rowProduct['cost_price']?>">
-                                        </div>
-                                    </div>
-
-                                    <!-- ราคาสินค้า -->
-                                    <div class="form-group row">
-                                        <label class="col-sm-2">ราคาสินค้า</label>
-                                        <div class="col-sm-4">
-                                            <input type="number" step="0.01" name="product_price" class="form-control" min="0" max="99999" value="<?php echo $rowProduct['product_price']?>">
-                                        </div>
-                                    </div>
-
                                     <!-- ภาพสินค้า -->
                                     <div class="form-group row">
                                         <label class="col-sm-2">ภาพสินค้า</label>
@@ -115,12 +91,20 @@ $rsType = $queryType->fetchAll();
                                                     <input type="file" name="product_image" class="custom-file-input" id="exampleInputFile" accept="image/*">
                                                     <label class="custom-file-label" for="exampleInputFile">Choose file</label>
                                                 </div>
-                                                <div class="input-group-append">
-                                                    <span class="input-group-text">Upload</span>
-                                                </div>
+                                                 
                                             </div>
                                         </div>
                                     </div>
+                                    <script>
+                                        // ดักจับเหตุการณ์เมื่อมีการเปลี่ยนแปลงของ input type="file"
+                                        document.getElementById('exampleInputFile').addEventListener('change', function () {
+                                            // ตรวจสอบว่ามีไฟล์ที่ถูกเลือกหรือไม่
+                                            if (this.files && this.files[0]) {
+                                                // แสดงชื่อไฟล์ใน label
+                                                this.nextElementSibling.textContent = this.files[0].name;
+                                            }
+                                        });
+                                    </script>
 
                                     <!-- ปุ่มบันทึกและยกเลิก -->
                                     <div class="form-group row">
@@ -147,82 +131,50 @@ $rsType = $queryType->fetchAll();
 
 <?php 
 // เช็ค input ที่ส่งมาจากฟอร์ม
-if(isset($_POST['product_name']) && isset($_POST['ref_type_id']) && isset($_POST['product_price']) && isset($_POST['cost_price'])) {
-
-    //trigger exception in a "try" block
+if(isset($_POST['product_name']) && isset($_POST['ref_type_id'])) {
+    // trigger exception in a "try" block
     try {
+        // ประกาศตัวแปรรับค่าจากฟอร์ม
+        $ref_type_id = $_POST['ref_type_id'];
+        $product_name = $_POST['product_name'];
+        $id = $_POST['id'];
+        $upload = $_FILES['product_image']['name'];
 
-    // ประกาศตัวแปรรับค่าจากฟอร์ม
-    $ref_type_id = $_POST['ref_type_id'];
-    $product_name = $_POST['product_name'];
-    $product_price = $_POST['product_price'];
-    $product_qty = $_POST['product_qty'];
-    $cost_price = $_POST['cost_price']; 
-    $id = $_POST['id'];
-    $upload = $_FILES['product_image']['name'];
+        // คิวรี่เช็คชื่อสินค้าว่ามีในฐานข้อมูลหรือไม่
+        $stmtCheckDuplicate = $condb->prepare("SELECT COUNT(*) FROM tbl_product WHERE product_name = :product_name AND id != :id");
+        $stmtCheckDuplicate->bindParam(':product_name', $product_name, PDO::PARAM_STR);
+        $stmtCheckDuplicate->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmtCheckDuplicate->execute();
+        $rowCount = $stmtCheckDuplicate->fetchColumn();
 
-    // ตรวจสอบการอัพโหลดไฟล์
-    if($upload == '') {
-        // ไม่มีการอัพโหลดไฟล์
-        $stmtUpdateProduct = $condb->prepare("UPDATE tbl_product SET
-            ref_type_id=:ref_type_id,
-            product_name=:product_name,
-            product_qty=:product_qty,
-            product_price=:product_price,
-            cost_price=:cost_price
-            WHERE id=:id
-        ");
-        // bindParam
-        $stmtUpdateProduct->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmtUpdateProduct->bindParam(':ref_type_id', $ref_type_id, PDO::PARAM_INT);
-        $stmtUpdateProduct->bindParam(':product_name', $product_name, PDO::PARAM_STR);
-        $stmtUpdateProduct->bindParam(':product_qty', $product_qty, PDO::PARAM_INT);
-        $stmtUpdateProduct->bindParam(':product_price', $product_price, PDO::PARAM_STR);
-        $stmtUpdateProduct->bindParam(':cost_price', $cost_price, PDO::PARAM_STR); 
-        $result = $stmtUpdateProduct->execute();
-        if($result){
+        // ถ้าชื่อสินค้ามีในฐานข้อมูลแล้ว
+        if ($rowCount > 0) {
             echo '<script>
                 setTimeout(function() {
                 swal({
-                    title: "บันทึกข้อมูลสำเร็จ",
-                    type: "success"
+                    title: "เกิดข้อผิดพลาด",
+                    text: "ชื่อสินค้าซ้ำ",
+                    type: "error"
                 }, function() {
                     window.location = "product.php";
                 });
                 }, 1000);
             </script>';
-        } //if
-        
-    } else {
-        // มีการอัพโหลดไฟล์
-        $date1 = date("Ymd_His");
-        $numrand = (mt_rand());
-        $typefile = strrchr($_FILES['product_image']['name'], ".");
-        if($typefile == '.jpg' || $typefile == '.jpeg' || $typefile == '.png') {
-            // ลบภาพเก่า
-            unlink('../assets/product_img/'.$_POST['oldImg']);
-            // โฟลเดอร์ที่เก็บไฟล์
-            $path="../assets/product_img/";
-            $newname = $numrand . $date1 . $typefile;
-            move_uploaded_file($_FILES['product_image']['tmp_name'], $path.$newname);
-            
-            // อัปเดตข้อมูลสินค้าพร้อมภาพใหม่
+            exit; // หยุดการทำงานของโปรแกรม
+        }
+
+        // ตรวจสอบการอัพโหลดไฟล์
+        if($upload == '') {
+            // ไม่มีการอัพโหลดไฟล์
             $stmtUpdateProduct = $condb->prepare("UPDATE tbl_product SET
                 ref_type_id=:ref_type_id,
-                product_name=:product_name,
-                product_qty=:product_qty,
-                product_price=:product_price,
-                cost_price=:cost_price,
-                product_image=:product_image
+                product_name=:product_name
                 WHERE id=:id
             ");
+            // bindParam
             $stmtUpdateProduct->bindParam(':id', $id, PDO::PARAM_INT);
             $stmtUpdateProduct->bindParam(':ref_type_id', $ref_type_id, PDO::PARAM_INT);
             $stmtUpdateProduct->bindParam(':product_name', $product_name, PDO::PARAM_STR);
-            $stmtUpdateProduct->bindParam(':product_qty', $product_qty, PDO::PARAM_INT);
-            $stmtUpdateProduct->bindParam(':product_price', $product_price, PDO::PARAM_STR);
-            $stmtUpdateProduct->bindParam(':cost_price', $cost_price, PDO::PARAM_STR); 
-            $stmtUpdateProduct->bindParam(':product_image', $newname , PDO::PARAM_STR);
             $result = $stmtUpdateProduct->execute();
             if($result){
                 echo '<script>
@@ -236,8 +188,45 @@ if(isset($_POST['product_name']) && isset($_POST['ref_type_id']) && isset($_POST
                     }, 1000);
                 </script>';
             } //if
-        } //if
-    } // if upload
+        } else {
+            // มีการอัพโหลดไฟล์
+            $date1 = date("Ymd_His");
+            $numrand = (mt_rand());
+            $typefile = strrchr($_FILES['product_image']['name'], ".");
+            if($typefile == '.jpg' || $typefile == '.jpeg' || $typefile == '.png') {
+                // ลบภาพเก่า
+                unlink('../assets/product_img/'.$_POST['oldImg']);
+                // โฟลเดอร์ที่เก็บไฟล์
+                $path="../assets/product_img/";
+                $newname = $numrand . $date1 . $typefile;
+                move_uploaded_file($_FILES['product_image']['tmp_name'], $path.$newname);
+
+                // อัปเดตข้อมูลสินค้าพร้อมภาพใหม่
+                $stmtUpdateProduct = $condb->prepare("UPDATE tbl_product SET
+                    ref_type_id=:ref_type_id,
+                    product_name=:product_name,
+                    product_image=:product_image
+                    WHERE id=:id
+                ");
+                $stmtUpdateProduct->bindParam(':id', $id, PDO::PARAM_INT);
+                $stmtUpdateProduct->bindParam(':ref_type_id', $ref_type_id, PDO::PARAM_INT);
+                $stmtUpdateProduct->bindParam(':product_name', $product_name, PDO::PARAM_STR); 
+                $stmtUpdateProduct->bindParam(':product_image', $newname , PDO::PARAM_STR);
+                $result = $stmtUpdateProduct->execute();
+                if($result){
+                    echo '<script>
+                        setTimeout(function() {
+                        swal({
+                            title: "บันทึกข้อมูลสำเร็จ",
+                            type: "success"
+                        }, function() {
+                            window.location = "product.php";
+                        });
+                        }, 1000);
+                    </script>';
+                } //if
+            } //if
+        } // if upload
     } catch (Exception $e) {
         echo '<script>
         setTimeout(function() {

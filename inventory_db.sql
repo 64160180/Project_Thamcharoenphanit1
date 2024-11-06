@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db
--- Generation Time: Nov 05, 2024 at 12:00 PM
+-- Generation Time: Nov 06, 2024 at 11:32 AM
 -- Server version: 5.7.44
 -- PHP Version: 8.2.8
 
@@ -88,7 +88,9 @@ CREATE TABLE `tbl_newproduct` (
 --
 
 INSERT INTO `tbl_newproduct` (`id`, `newproduct_name`, `newcost_price`, `newproduct_price`, `newproduct_qty`, `dateCreate`) VALUES
-(65, 'jj', 30.00, 50.00, 100, '2024-11-05 11:07:27');
+(65, 'jj', 30.00, 50.00, 100, '2024-11-05 11:07:27'),
+(66, 'jj', 30.00, 50.00, 1, '2024-11-06 10:18:03'),
+(67, 'pong_phannahat', 50.00, 100.00, 20, '2024-11-06 11:32:19');
 
 -- --------------------------------------------------------
 
@@ -156,12 +158,7 @@ INSERT INTO `tbl_order` (`id`, `product_id`, `product_name`, `cost_price`, `sell
 (141, 6, 'ท่อPVC 1/2*8.5', 39.00, 55.00, '2024-11-02 14:48:45', 2),
 (143, 45, 'หลอดไฟ Panasonic LED', 60.00, 120.00, '2024-11-02 17:35:24', 1),
 (153, 26, 'ท่อ PVC 3/4*8.5', 49.00, 65.00, '2024-11-03 16:04:16', 1),
-(162, 59, 'asdasdasd', 32.00, 40.00, '2024-11-04 08:55:41', 2),
-(163, 60, 'pong', 23.00, 30.00, '2024-11-04 09:14:24', 2),
-(164, 59, 'asdasdasd', 32.00, 40.00, '2024-11-04 09:17:07', 1),
-(169, 60, 'pong', 23.00, 30.00, '2024-11-04 09:57:33', 9),
-(170, 59, 'asdasdasd', 32.00, 40.00, '2024-11-04 10:02:43', 3),
-(171, 60, 'pong', 23.00, 30.00, '2024-11-04 10:06:19', 1);
+(172, 61, 'jj', 30.00, 50.00, '2024-11-06 10:17:11', 1);
 
 --
 -- Triggers `tbl_order`
@@ -243,9 +240,7 @@ INSERT INTO `tbl_order_eoq` (`id`, `product_id`, `product_name`, `cost_price`, `
 (44, 6, 'ท่อPVC 1/2*8.5', 39.00, 55.00, 2),
 (45, 45, 'หลอดไฟ Panasonic LED', 60.00, 120.00, 1),
 (46, 26, 'ท่อ PVC 3/4*8.5', 49.00, 65.00, 1),
-(70, 60, 'pong', 23.00, 30.00, 9),
-(71, 59, 'asdasdasd', 32.00, 40.00, 3),
-(72, 60, 'pong', 23.00, 30.00, 1);
+(73, 61, 'jj', 30.00, 50.00, 1);
 
 -- --------------------------------------------------------
 
@@ -297,9 +292,8 @@ INSERT INTO `tbl_product` (`id`, `ref_type_id`, `product_name`, `product_qty`, `
 (42, 1, 'สามทาง 1/2', 100, 5.00, 10.00, '179778774220240915_114458.jpg', '2024-09-15 09:44:58'),
 (43, 1, 'สามทางเกลียวใน 1/2', 54, 10.00, 15.00, '46252919220240915_114543.jpg', '2024-09-15 09:45:43'),
 (45, 4, 'หลอดไฟ Panasonic LED', 10, 60.00, 120.00, '139936493620240918_182919.jpg', '2024-09-18 16:21:10'),
-(59, 12, 'asdasdasd', 105, 32.00, 40.00, '206287269820241104_085101.png', '2024-11-04 08:51:01'),
-(60, 11, 'pong', 99, 23.00, 30.00, '157122992920241104_085156.png', '2024-11-04 08:51:56'),
-(61, 14, 'jj', 100, 30.00, 50.00, '171891812420241104_112957.jpg', '2024-11-04 11:29:57');
+(61, 14, 'jj', 100, 30.00, 50.00, '156230341020241106_104927.jpg', '2024-11-04 11:29:57'),
+(64, 16, 'pong_phannahat', 20, 50.00, 100.00, '165539830020241106_113202.jpg', '2024-11-06 11:31:47');
 
 -- --------------------------------------------------------
 
@@ -324,9 +318,8 @@ INSERT INTO `tbl_type` (`type_id`, `type_name`, `type_minimum`) VALUES
 (4, 'หลอดไฟ', 10),
 (9, 'น้ำมันเครื่อง', 5),
 (11, 'ป้อง', 10),
-(12, 'pong11111111', 29),
 (14, 'yada', 12),
-(15, 'pongpao', 20);
+(16, 'pong', 10);
 
 --
 -- Indexes for dumped tables
@@ -387,31 +380,31 @@ ALTER TABLE `tbl_member`
 -- AUTO_INCREMENT for table `tbl_newproduct`
 --
 ALTER TABLE `tbl_newproduct`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `tbl_order`
 --
 ALTER TABLE `tbl_order`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=174;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=173;
 
 --
 -- AUTO_INCREMENT for table `tbl_order_eoq`
 --
 ALTER TABLE `tbl_order_eoq`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
 
 --
 -- AUTO_INCREMENT for table `tbl_product`
 --
 ALTER TABLE `tbl_product`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `tbl_type`
 --
 ALTER TABLE `tbl_type`
-  MODIFY `type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- Constraints for dumped tables
