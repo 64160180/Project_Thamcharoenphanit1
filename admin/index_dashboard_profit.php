@@ -88,6 +88,7 @@ $yearlyExpenseValues = array_column($yearlyExpenses, 'expenses');
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -95,6 +96,7 @@ $yearlyExpenseValues = array_column($yearlyExpenses, 'expenses');
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
     <div class="content-wrapper">
         <section class="content-header">
@@ -109,6 +111,29 @@ $yearlyExpenseValues = array_column($yearlyExpenses, 'expenses');
 
         <section class="content">
             <div class="container-fluid">
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <label for="monthSelector">เลือกเดือน</label>
+                        <select id="monthSelector" class="form-control">
+                            <option value="">ทุกเดือน</option>
+                            <option value="01">มกราคม</option>
+                            <option value="02">กุมภาพันธ์</option>
+                            <option value="03">มีนาคม</option>
+                            <option value="04">เมษายน</option>
+                            <option value="05">พฤษภาคม</option>
+                            <option value="06">มิถุนายน</option>
+                            <option value="07">กรกฎาคม</option>
+                            <option value="08">สิงหาคม</option>
+                            <option value="09">กันยายน</option>
+                            <option value="10">ตุลาคม</option>
+                            <option value="11">พฤศจิกายน</option>
+                            <option value="12">ธันวาคม</option>
+                        </select>
+                    </div>
+
+                    </select>
+                </div>
+
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
@@ -120,125 +145,256 @@ $yearlyExpenseValues = array_column($yearlyExpenses, 'expenses');
                                     </div>
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-12">
-                                        <h3>กราฟรายรับ-จ่ายและกำไรรายปี</h3>
-                                        <canvas id="yearlyCombinedChart"></canvas>
-                                    </div>
+                                <div class="col-sm-3">
+    <label for="yearSelector">เลือกปี</label>
+    <select id="yearSelector" class="form-control">
+        <option value="">ทุกปี</option>
+        <?php 
+        // ดึงปีปัจจุบัน
+        $currentYear = date("Y");
+
+        // แสดงปีที่มีอยู่ใน $yearlyDates
+        foreach ($yearlyDates as $year) { 
+            // แสดงปีจาก $yearlyDates หากปีนั้นไม่เกิน 5 ปีที่ผ่านมา
+            if ($year >= $currentYear - 5 && $year <= $currentYear) {
+        ?>
+            <option value="<?= $year ?>"><?= $year ?></option>
+        <?php 
+            }
+        } 
+
+        // แสดงปีย้อนหลัง 5 ปีจากปีปัจจุบัน
+        for ($i = 0; $i <= 5; $i++) {
+            $yearOption = $currentYear - $i;
+            if (!in_array($yearOption, $yearlyDates)) { // ตรวจสอบว่าไม่มีปีนี้ใน $yearlyDates แล้วเพิ่มเข้าไป
+        ?>
+            <option value="<?= $yearOption ?>"><?= $yearOption ?></option>
+        <?php 
+            }
+        } 
+        ?>
+    </select>
+</div>
+
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <h3>กราฟรายรับ-จ่ายและกำไรรายปี</h3>
+                                    <canvas id="yearlyCombinedChart"></canvas>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+    </div>
+    </section>
     </div>
 
     <script>
-        // กราฟรายรับ, กำไร และรายจ่ายรายเดือน
-        const monthlyCombinedCtx = document.getElementById('monthlyCombinedChart').getContext('2d');
-        const monthlyCombinedChart = new Chart(monthlyCombinedCtx, {
-            type: 'line',
-            data: {
-                labels: <?= json_encode($monthlyDates); ?>,
-                datasets: [
-                    {
-                        label: 'รายรับรายเดือน (บาท)',
-                        data: <?= json_encode($monthlyRevenueValues); ?>,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.1
-                    },{
-                        label: 'รายจ่ายรายเดือน (บาท)',
-                        data: <?= json_encode($monthlyExpenseValues); ?>,
-                        borderColor: 'rgba(255, 206, 86, 1)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.1
-                    },{
-                        label: 'กำไรรายเดือน (บาท)',
-                        data: <?= json_encode($monthlyProfitValues); ?>,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'เดือน'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'บาท'
-                        },
-                        beginAtZero: true
-                    }
-                }
-            }
+    document.getElementById('monthSelector').addEventListener('change', updateCharts);
+    document.getElementById('yearSelector').addEventListener('change', updateCharts);
+
+    function updateCharts() {
+        const selectedMonth = document.getElementById('monthSelector').value;
+        const selectedYear = document.getElementById('yearSelector').value;
+
+        // ฟิลเตอร์ข้อมูลรายเดือน
+        const filteredMonthlyDates = <?= json_encode($monthlyDates); ?>.filter(date => {
+            const [year, month] = date.split('-');
+            return (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year ===
+                selectedYear);
         });
 
-        // กราฟรายรับ, กำไร และรายจ่ายรายปี
-        const yearlyCombinedCtx = document.getElementById('yearlyCombinedChart').getContext('2d');
-        const yearlyCombinedChart = new Chart(yearlyCombinedCtx, {
-            type: 'line',
-            data: {
-                labels: <?= json_encode($yearlyDates); ?>,
-                datasets: [
-                    {
-                        label: 'รายรับรายปี (บาท)',
-                        data: <?= json_encode($yearlyRevenueValues); ?>,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.1
-                    },{
-                        label: 'รายจ่ายรายปี (บาท)',
-                        data: <?= json_encode($yearlyExpenseValues); ?>,
-                        borderColor: 'rgba(255, 206, 86, 1)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.1
-                    },{
-                        label: 'กำไรรายปี (บาท)',
-                        data: <?= json_encode($yearlyProfitValues); ?>,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'ปี'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'บาท'
-                        },
-                        beginAtZero: true
-                    }
-                }
-            }
+        const filteredMonthlyRevenueValues = <?= json_encode($monthlyRevenueValues); ?>.filter((_, index) => {
+            const [year, month] = <?= json_encode($monthlyDates); ?>[index].split('-');
+            return (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year ===
+                selectedYear);
         });
+
+        const filteredMonthlyProfitValues = <?= json_encode($monthlyProfitValues); ?>.filter((_, index) => {
+            const [year, month] = <?= json_encode($monthlyDates); ?>[index].split('-');
+            return (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year ===
+                selectedYear);
+        });
+
+        const filteredMonthlyExpenseValues = <?= json_encode($monthlyExpenseValues); ?>.filter((_, index) => {
+            const [year, month] = <?= json_encode($monthlyDates); ?>[index].split('-');
+            return (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year ===
+                selectedYear);
+        });
+
+        // อัปเดตกราฟรายเดือน
+        monthlyCombinedChart.data.labels = filteredMonthlyDates.map(date => {
+            const d = new Date(date + '-01');
+            return d.toLocaleDateString('th-TH', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        });
+        monthlyCombinedChart.data.datasets[0].data = filteredMonthlyRevenueValues;
+        monthlyCombinedChart.data.datasets[1].data = filteredMonthlyExpenseValues;
+        monthlyCombinedChart.data.datasets[2].data = filteredMonthlyProfitValues;
+        monthlyCombinedChart.update();
+
+        // ฟิลเตอร์ข้อมูลรายปี
+        const filteredYearlyDates = <?= json_encode($yearlyDates); ?>.filter(year => {
+            return selectedYear === '' || year === selectedYear;
+        });
+
+        const filteredYearlyRevenueValues = <?= json_encode($yearlyRevenueValues); ?>.filter((_, index) => {
+            return selectedYear === '' || <?= json_encode($yearlyDates); ?>[index] === selectedYear;
+        });
+
+        const filteredYearlyProfitValues = <?= json_encode($yearlyProfitValues); ?>.filter((_, index) => {
+            return selectedYear === '' || <?= json_encode($yearlyDates); ?>[index] === selectedYear;
+        });
+
+        const filteredYearlyExpenseValues = <?= json_encode($yearlyExpenseValues); ?>.filter((_, index) => {
+            return selectedYear === '' || <?= json_encode($yearlyDates); ?>[index] === selectedYear;
+        });
+
+        // อัปเดตกราฟรายปี
+        yearlyCombinedChart.data.labels = filteredYearlyDates.map(date => {
+            const d = new Date(date + '-01-01');
+            return d.toLocaleDateString('th-TH', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        });
+        yearlyCombinedChart.data.datasets[0].data = filteredYearlyRevenueValues;
+        yearlyCombinedChart.data.datasets[1].data = filteredYearlyExpenseValues;
+        yearlyCombinedChart.data.datasets[2].data = filteredYearlyProfitValues;
+        yearlyCombinedChart.update();
+    }
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <script>
+    // กราฟรายรับ, กำไร และรายจ่ายรายเดือน
+    const monthlyCombinedCtx = document.getElementById('monthlyCombinedChart').getContext('2d');
+    const monthlyCombinedChart = new Chart(monthlyCombinedCtx, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode($monthlyDates); ?>.map(date => {
+                const d = new Date(date + '-01'); // Assuming the dates are year-month (e.g., '2024-01')
+                return d.toLocaleDateString('th-TH', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            }),
+            datasets: [{
+                    label: 'รายรับรายเดือน (บาท)',
+                    data: <?= json_encode($monthlyRevenueValues); ?>,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'รายจ่ายรายเดือน (บาท)',
+                    data: <?= json_encode($monthlyExpenseValues); ?>,
+                    backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'กำไรรายเดือน (บาท)',
+                    data: <?= json_encode($monthlyProfitValues); ?>,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'เดือน'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'บาท'
+                    },
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
 
+    // กราฟรายรับ, กำไร และรายจ่ายรายปี
+    const yearlyCombinedCtx = document.getElementById('yearlyCombinedChart').getContext('2d');
+    const yearlyCombinedChart = new Chart(yearlyCombinedCtx, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode($yearlyDates); ?>.map(date => {
+                const d = new Date(date + '-01-01'); // Assuming the dates are just year (e.g., '2024')
+                return d.toLocaleDateString('th-TH', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            }),
+            datasets: [{
+                    label: 'รายรับรายปี (บาท)',
+                    data: <?= json_encode($yearlyRevenueValues); ?>,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'รายจ่ายรายปี (บาท)',
+                    data: <?= json_encode($yearlyExpenseValues); ?>,
+                    backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'กำไรรายปี (บาท)',
+                    data: <?= json_encode($yearlyProfitValues); ?>,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'ปี'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'บาท'
+                    },
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+    </script>
+
+</body>
+
+</html>

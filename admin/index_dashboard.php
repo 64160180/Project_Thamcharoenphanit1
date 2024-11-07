@@ -21,20 +21,26 @@ $queryTodayOut = $condb->prepare("SELECT SUM(quantity) AS totalTodayOut FROM tbl
 $queryTodayOut->execute();
 $rowTodayOut = $queryTodayOut->fetch(PDO::FETCH_ASSOC);
 
-// คิวรีเพื่อดึงข้อมูลรายรับและกำไร
+$month = isset($_GET['month']) ? $_GET['month'] : date('m'); // Default to current month
+$year = isset($_GET['year']) ? $_GET['year'] : date('Y'); // Default to current year
+
 $queryRevenueAndProfit = $condb->prepare("
     SELECT 
         DATE(date_out) AS order_date,
         SUM(sell_price * quantity) AS revenue,
         SUM((sell_price - cost_price) * quantity) AS profit
     FROM tbl_order 
+    WHERE YEAR(date_out) = :year AND MONTH(date_out) = :month
     GROUP BY DATE(date_out) 
     ORDER BY order_date ASC
 ");
+$queryRevenueAndProfit->bindParam(':month', $month, PDO::PARAM_STR);
+$queryRevenueAndProfit->bindParam(':year', $year, PDO::PARAM_STR);
 $queryRevenueAndProfit->execute();
 $results = $queryRevenueAndProfit->fetchAll(PDO::FETCH_ASSOC);
 
-// เตรียมข้อมูลสำหรับกราฟ
+
+// เตรียมข้อมูลสำหรับกราฟ รายรับ และ กำไร
 $dates = [];
 $revenueValues = [];
 $profitValues = [];
@@ -136,7 +142,7 @@ $topEoqResults = array_slice($eoqResults, $offset, $itemsPerPage);
                 </div>
             </div>
         </section>
-        
+
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -192,15 +198,47 @@ $topEoqResults = array_slice($eoqResults, $offset, $itemsPerPage);
                                         </div>
                                     </div>
                                 </div>
+                                <form method="GET" action="">
+                                    <label for="monthSelect">เลือกเดือน:</label>
+                                    <select name="month" id="monthSelect" onchange="this.form.submit()">
+                                        <option value="01" <?= $month == '01' ? 'selected' : ''; ?>>มกราคม</option>
+                                        <option value="02" <?= $month == '02' ? 'selected' : ''; ?>>กุมภาพันธ์</option>
+                                        <option value="03" <?= $month == '03' ? 'selected' : ''; ?>>มีนาคม</option>
+                                        <option value="04" <?= $month == '04' ? 'selected' : ''; ?>>เมษายน</option>
+                                        <option value="05" <?= $month == '05' ? 'selected' : ''; ?>>พฤษภาคม</option>
+                                        <option value="06" <?= $month == '06' ? 'selected' : ''; ?>>มิถุนายน</option>
+                                        <option value="07" <?= $month == '07' ? 'selected' : ''; ?>>กรกฎาคม</option>
+                                        <option value="08" <?= $month == '08' ? 'selected' : ''; ?>>สิงหาคม</option>
+                                        <option value="09" <?= $month == '09' ? 'selected' : ''; ?>>กันยายน</option>
+                                        <option value="10" <?= $month == '10' ? 'selected' : ''; ?>>ตุลาคม</option>
+                                        <option value="11" <?= $month == '11' ? 'selected' : ''; ?>>พฤศจิกายน</option>
+                                        <option value="12" <?= $month == '12' ? 'selected' : ''; ?>>ธันวาคม</option>
+                                    </select>
+                                    <label for="yearSelect">เลือกปี:</label>
+                                        <select name="year" id="yearSelect" onchange="this.form.submit()">
+                                            <?php
+                                            // กำหนดปีปัจจุบัน
+                                            $currentYear = date('Y');
+                                            
+                                            // แสดงปีจากปีก่อนหน้า 5 ปี ถึงปีปัจจุบัน
+                                            for ($i = 0; $i < 5; $i++) {
+                                                $yearOption = $currentYear - $i;
+                                                echo '<option value="' . $yearOption . '" ' . ($year == $yearOption ? 'selected' : '') . '>' . $yearOption . '</option>';
+                                            }
+                                            ?>
+                                        </select>
+
+                                </form>
 
                                 <div class="row">
                                     <div class="col-12">
-                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
+                                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
                                         <h3>กราฟรายรับ-จ่ายและกำไรรายวัน</h3>
                                         <canvas id="profitChart"></canvas>
                                         <?php endif; ?>
                                     </div>
                                 </div>
+
 
                                 <!-- แสดงผล EOQ -->
                                 <section class="content">
@@ -231,24 +269,32 @@ $topEoqResults = array_slice($eoqResults, $offset, $itemsPerPage);
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-                                                                    <?php foreach ($topEoqResults as $eoq): ?>
-                                                                    <tr>
-                                                                        <td><?= $eoq['product_name']; ?></td>
-                                                                        <td><?= $eoq['EOQ']; ?></td>
-                                                                        <td><?= $eoq['total_sold']; ?></td>
-                                                                        <td><?= number_format($eoq['avg_cost_price'], 2); ?></td>
-                                                                        <td><?= number_format($eoq['avg_sell_price'], 2); ?></td>
-                                                                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
-                                                                        <td>
-                                                                            <form action="delete_eoq.php" method="POST" style="display:inline;">
-                                                                                <input type="hidden" name="product_id" value="<?= $eoq['product_id']; ?>">
-                                                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('คุณแน่ใจหรือไม่ว่าจะลบข้อมูลนี้?');">ลบ</button>
-                                                                            </form>
-                                                                            <?php } ?>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <?php endforeach; ?>
-                                                                </tbody>
+                                                                        <?php foreach ($topEoqResults as $eoq): ?>
+                                                                        <tr>
+                                                                            <td><?= $eoq['product_name']; ?></td>
+                                                                            <td><?= $eoq['EOQ']; ?></td>
+                                                                            <td><?= $eoq['total_sold']; ?></td>
+                                                                            <td><?= number_format($eoq['avg_cost_price'], 2); ?>
+                                                                            </td>
+                                                                            <td><?= number_format($eoq['avg_sell_price'], 2); ?>
+                                                                            </td>
+                                                                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
+                                                                            <td>
+                                                                                <form action="delete_eoq.php"
+                                                                                    method="POST"
+                                                                                    style="display:inline;">
+                                                                                    <input type="hidden"
+                                                                                        name="product_id"
+                                                                                        value="<?= $eoq['product_id']; ?>">
+                                                                                    <button type="submit"
+                                                                                        class="btn btn-danger btn-sm"
+                                                                                        onclick="return confirm('คุณแน่ใจหรือไม่ว่าจะลบข้อมูลนี้?');">ลบ</button>
+                                                                                </form>
+                                                                                <?php } ?>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <?php endforeach; ?>
+                                                                    </tbody>
 
                                                                 </table>
                                                                 <!-- ปุ่มนำทางสำหรับหน้า EOQ -->
@@ -285,52 +331,77 @@ $topEoqResults = array_slice($eoqResults, $offset, $itemsPerPage);
                                 </section>
                             </div>
 
-    <script>
-    <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-        const ctxProfit = document.getElementById('profitChart').getContext('2d');
-        const profitChart = new Chart(ctxProfit, {
-            type: 'line',
-            data: {
-                labels: <?= json_encode($dates); ?>,
-                datasets: [{
-                    label: 'รายรับ',
-                    data: <?= json_encode($revenueValues); ?>,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2,
-                    fill: false,
-                }, {
-                    label: 'รายจ่าย',
-                    data: <?= json_encode($expenseValues); ?>,
-                    borderColor: 'rgba(255, 159, 64, 1)', 
-                    borderWidth: 2,
-                    fill: false,
-                }, {
-                    label: 'กำไร',
-                    data: <?= json_encode($profitValues); ?>,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 2,
-                    fill: false,
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    <?php endif; ?>
-</script>
+                            <script>
+                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
+                            const ctxProfit = document.getElementById('profitChart').getContext('2d');
+                            const profitChart = new Chart(ctxProfit, {
+                                type: 'line',
+                                data: {
+                                    labels: <?= json_encode($dates); ?>.map(date => {
+                                        const d = new Date(date);
+                                        return d.toLocaleDateString('th-TH', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric'
+                                        });
+                                    }),
+                                    datasets: [{
+                                        label: 'รายรับ',
+                                        data: <?= json_encode($revenueValues); ?>,
+                                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                        borderWidth: 1
+                                    }, {
+                                        label: 'รายจ่าย',
+                                        data: <?= json_encode($expenseValues); ?>,
+                                        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                                        borderColor: 'rgba(255, 159, 64, 1)',
+                                        borderWidth: 1
+                                    }, {
+                                        label: 'กำไร',
+                                        data: <?= json_encode($profitValues); ?>,
+                                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                                        borderColor: 'rgba(255, 99, 132, 1)',
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    scales: {
+                                        x: {
+                                            beginAtZero: true,
+                                            title: {
+                                                display: true,
+                                                text: 'วัน/เดือน/ปี'
+                                            }
+                                        },
+                                        y: {
+                                            beginAtZero: true,
+                                            title: {
+                                                display: true,
+                                                text: 'จำนวนเงิน (บาท)'
+                                            }
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: {
+                                            position: 'top',
+                                        }
+                                    }
+                                }
+                            });
+
+                            <?php endif; ?>
+                            </script>
 
 
-                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+    </div>
+    </section>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

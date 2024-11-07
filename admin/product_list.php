@@ -52,9 +52,9 @@ $rsproduct = $queryproduct->fetchAll();
                                 </thead>
                                 <tbody>
                                     <?php 
-                $i = 1; //ตัวเลขเริ่มต้น
-                foreach($rsproduct as $row){?>
-                                    <tr>
+                                    $i = 1; //ตัวเลขเริ่มต้น
+                                    foreach($rsproduct as $row){?>
+                                                        <tr>
                                         <td align="center"> <?php echo $i++ ?> </td>
                                         <td>
                                             <img src="../assets/product_img/<?= $row['product_image']; ?>" width="70px">
