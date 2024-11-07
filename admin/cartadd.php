@@ -12,6 +12,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once '../config/condb.php';
 
+
 // ตรวจสอบการเพิ่ม/ลดจำนวนหรือการลบสินค้า
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update_quantity'])) {
@@ -41,9 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (isset($_POST['remove_product'])) {
         // ลบสินค้าจากรถเข็น
         $productId = $_POST['product_id'];
-        unset($_SESSION['cart'][$productId]);
+        unset($_SESSION['cart'][$productId]); // ลบสินค้าที่มี id ตรงกับ $productId จาก session 'cart'
     }
 } //เพิ่มลด/อัพเดท/ลบ
+
 
 // ตรวจสอบว่ารถเข็นมีสินค้าอยู่หรือไม่
 if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {

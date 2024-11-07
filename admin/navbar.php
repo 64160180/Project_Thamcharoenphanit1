@@ -16,10 +16,10 @@ try {
     $stmtCountLowStock->execute();
     $lowStockItems = $stmtCountLowStock->fetchAll(PDO::FETCH_ASSOC);
     
-    // กิจกรรมที่ใกล้ถึงวันที่สิ้นสุดใน 7 วัน
-    $stmtUpcomingEvents = $condb->prepare("SELECT title, end_date FROM tbl_event WHERE end_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY)");
-    $stmtUpcomingEvents->execute();
-    $upcomingEvents = $stmtUpcomingEvents->fetchAll(PDO::FETCH_ASSOC);
+    // // กิจกรรมที่ใกล้ถึงวันที่สิ้นสุดใน 7 วัน
+    // $stmtUpcomingEvents = $condb->prepare("SELECT title, end_date FROM tbl_event WHERE end_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY)");
+    // $stmtUpcomingEvents->execute();
+    // $upcomingEvents = $stmtUpcomingEvents->fetchAll(PDO::FETCH_ASSOC);
     
 } catch (PDOException $e) {
     die("Connection failed: " . $e->getMessage());
@@ -45,14 +45,15 @@ try {
         </li>
     </ul>
     <ul class="navbar-nav ml-auto">
-        <li class="nav-item position-relative">
-            <a class="nav-link" data-toggle="modal" data-target="#notificationModal">
-                <i class="fas fa-bell fa-lg"></i>
-                <?php if (count($lowStockItems) > 0 || count($upcomingEvents) > 0): ?>
-                    <span class="notification-badge"><?= count($lowStockItems) + count($upcomingEvents); ?></span>
-                <?php endif; ?>
-            </a>
-        </li>
+    <li class="nav-item position-relative">
+    <a class="nav-link" data-toggle="modal" data-target="#notificationModal">
+        <i class="fas fa-bell fa-lg"></i>
+        <?php if (count($lowStockItems) > 0): ?>
+            <span class="notification-badge"><?= count($lowStockItems); ?></span>
+        <?php endif; ?>
+    </a>
+</li>
+
         
         <li class="nav-item">
             <a href="../logout.php" class="btn btn-outline-primary me-4" style="margin-left: 15px;">Logout</a>
@@ -65,24 +66,19 @@ try {
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
+            <link rel="stylesheet" href="../admin/css/notification.css">
                 <h5 class="modal-title" id="notificationModalLabel">การแจ้งเตือน</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <h6>สินค้าที่เหลือน้อย:</h6>
+                <h5>สินค้าที่เหลือน้อย</h5>
                 <ul>
                     <?php foreach ($lowStockItems as $item): ?>
-                        <li>ชื่อสินค้า: <?= htmlspecialchars($item['product_name']); ?> </li> 
+                        <li class="low-stock-item">ชื่อสินค้า: <?= htmlspecialchars($item['product_name']); ?> </li> 
                     <?php endforeach; ?>
-                </ul>
-                <h6>กิจกรรมที่ใกล้ถึงวันที่สิ้นสุด:</h6>
-                <ul>
-                    <?php foreach ($upcomingEvents as $event): ?>
-                        <li>ชื่อกิจกรรม: <?= htmlspecialchars($event['title']); ?> วันที่สิ้นสุด: <?= htmlspecialchars($event['end_date']); ?> </li> 
-                    <?php endforeach; ?>
-                </ul>
+                </ul>  
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">ปิด</button>

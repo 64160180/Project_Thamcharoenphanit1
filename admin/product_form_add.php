@@ -57,14 +57,14 @@ $rsType = $queryType->fetchAll();
                                     <div class="form-group row">
                                         <label class="col-sm-2">ราคาทุน</label>
                                         <div class="col-sm-4">
-                                            <input type="number" name="cost_price" class="form-control" value="0" min="0" max="99999" step="0.01" >
+                                            <input type="number" name="cost_price" class="form-control" value="0" min="0" max="99999"  >
                                         </div>
                                     </div>
 
                                     <div class="form-group row">
                                         <label class="col-sm-2">ราคาสินค้า</label>
                                         <div class="col-sm-4">
-                                            <input type="number" name="product_price" class="form-control" value="0" min="0" max="99999" step="0.01" >
+                                            <input type="number" name="product_price" class="form-control" value="0" min="0" max="99999"  >
                                         </div>
                                     </div>
 
