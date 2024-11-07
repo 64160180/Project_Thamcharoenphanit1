@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db
--- Generation Time: Nov 06, 2024 at 11:32 AM
+-- Generation Time: Nov 07, 2024 at 08:07 AM
 -- Server version: 5.7.44
 -- PHP Version: 8.2.8
 
@@ -20,27 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `inventory_db`
 --
-
--- --------------------------------------------------------
-
---
--- Table structure for table `tbl_event`
---
-
-CREATE TABLE `tbl_event` (
-  `id` int(11) NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `start` datetime NOT NULL,
-  `end` datetime NOT NULL,
-  `end_date` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `tbl_event`
---
-
-INSERT INTO `tbl_event` (`id`, `title`, `start`, `end`, `end_date`) VALUES
-(0, 'ป้อง', '2024-11-01 00:00:00', '0000-00-00 00:00:00', NULL);
 
 -- --------------------------------------------------------
 
@@ -90,7 +69,8 @@ CREATE TABLE `tbl_newproduct` (
 INSERT INTO `tbl_newproduct` (`id`, `newproduct_name`, `newcost_price`, `newproduct_price`, `newproduct_qty`, `dateCreate`) VALUES
 (65, 'jj', 30.00, 50.00, 100, '2024-11-05 11:07:27'),
 (66, 'jj', 30.00, 50.00, 1, '2024-11-06 10:18:03'),
-(67, 'pong_phannahat', 50.00, 100.00, 20, '2024-11-06 11:32:19');
+(67, 'pong_phannahat', 50.00, 100.00, 20, '2024-11-06 11:32:19'),
+(68, 'โค้ก 1.5 ลิตร', 20.00, 40.00, 18, '2024-11-07 07:42:53');
 
 -- --------------------------------------------------------
 
@@ -293,7 +273,8 @@ INSERT INTO `tbl_product` (`id`, `ref_type_id`, `product_name`, `product_qty`, `
 (43, 1, 'สามทางเกลียวใน 1/2', 54, 10.00, 15.00, '46252919220240915_114543.jpg', '2024-09-15 09:45:43'),
 (45, 4, 'หลอดไฟ Panasonic LED', 10, 60.00, 120.00, '139936493620240918_182919.jpg', '2024-09-18 16:21:10'),
 (61, 14, 'jj', 100, 30.00, 50.00, '156230341020241106_104927.jpg', '2024-11-04 11:29:57'),
-(64, 16, 'pong_phannahat', 20, 50.00, 100.00, '165539830020241106_113202.jpg', '2024-11-06 11:31:47');
+(64, 16, 'pong_phannahat', 20, 50.00, 100.00, '165539830020241106_113202.jpg', '2024-11-06 11:31:47'),
+(65, 17, 'โค้ก 1.5 ลิตร', 18, 20.00, 40.00, '90858099520241107_074220.png', '2024-11-07 07:42:20');
 
 -- --------------------------------------------------------
 
@@ -319,7 +300,8 @@ INSERT INTO `tbl_type` (`type_id`, `type_name`, `type_minimum`) VALUES
 (9, 'น้ำมันเครื่อง', 5),
 (11, 'ป้อง', 10),
 (14, 'yada', 12),
-(16, 'pong', 10);
+(16, 'pong', 10),
+(17, 'น้ำอัดลม', 5);
 
 --
 -- Indexes for dumped tables
@@ -380,7 +362,7 @@ ALTER TABLE `tbl_member`
 -- AUTO_INCREMENT for table `tbl_newproduct`
 --
 ALTER TABLE `tbl_newproduct`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
 
 --
 -- AUTO_INCREMENT for table `tbl_order`
@@ -398,13 +380,13 @@ ALTER TABLE `tbl_order_eoq`
 -- AUTO_INCREMENT for table `tbl_product`
 --
 ALTER TABLE `tbl_product`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
 -- AUTO_INCREMENT for table `tbl_type`
 --
 ALTER TABLE `tbl_type`
-  MODIFY `type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- Constraints for dumped tables

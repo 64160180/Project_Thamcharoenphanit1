@@ -98,13 +98,13 @@ if (session_status() === PHP_SESSION_NONE) {
                     </a>
                 </li>
 
-                <!-- ปฏิทิน -->
+                <!-- ปฏิทิน
                 <li class="nav-item">
                     <a href="calendar.php" class="nav-link">
                         <i class="nav-icon fas fa-edit"></i>
                         <p>ปฏิทิน</p>
                     </a>
-                </li>
+                </li> -->
             </ul>
         </nav>
         <!-- /.sidebar-menu -->
