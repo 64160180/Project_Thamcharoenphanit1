@@ -51,16 +51,21 @@ foreach ($results as $result) {
 }
 
 // คิวรีเพื่อดึงข้อมูลรายจ่ายจาก tbl_newproduct
+// คำสั่ง query เพื่อดึงข้อมูลรายจ่ายเฉพาะในเดือนและปีที่เลือก
 $queryExpenses = $condb->prepare("
     SELECT 
         DATE(dateCreate) AS expense_date,
         SUM(newcost_price * newproduct_qty) AS total_expenses
     FROM tbl_newproduct 
+    WHERE YEAR(dateCreate) = :year AND MONTH(dateCreate) = :month
     GROUP BY DATE(dateCreate) 
     ORDER BY expense_date ASC
 ");
+$queryExpenses->bindParam(':month', $month, PDO::PARAM_STR);
+$queryExpenses->bindParam(':year', $year, PDO::PARAM_STR);
 $queryExpenses->execute();
 $expenseResults = $queryExpenses->fetchAll(PDO::FETCH_ASSOC);
+
 
 // เตรียมข้อมูลสำหรับกราฟรายจ่าย
 $expenseDates = [];
@@ -198,6 +203,7 @@ $topEoqResults = array_slice($eoqResults, $offset, $itemsPerPage);
                                         </div>
                                     </div>
                                 </div>
+                                <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
                                 <form method="GET" action="">
                                     <label for="monthSelect">เลือกเดือน:</label>
                                     <select name="month" id="monthSelect" onchange="this.form.submit()">
@@ -232,7 +238,7 @@ $topEoqResults = array_slice($eoqResults, $offset, $itemsPerPage);
 
                                 <div class="row">
                                     <div class="col-12">
-                                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
+                                       
                                         <h3>กราฟรายรับ-จ่ายและกำไรรายวัน</h3>
                                         <canvas id="profitChart"></canvas>
                                         <?php endif; ?>
@@ -335,7 +341,7 @@ $topEoqResults = array_slice($eoqResults, $offset, $itemsPerPage);
                             <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
                             const ctxProfit = document.getElementById('profitChart').getContext('2d');
                             const profitChart = new Chart(ctxProfit, {
-                                type: 'line',
+                                type: 'bar',
                                 data: {
                                     labels: <?= json_encode($dates); ?>.map(date => {
                                         const d = new Date(date);

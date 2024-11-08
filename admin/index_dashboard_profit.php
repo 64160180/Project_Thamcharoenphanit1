@@ -26,6 +26,7 @@ $queryMonthlyProfit->execute();
 $monthlyProfits = $queryMonthlyProfit->fetchAll(PDO::FETCH_ASSOC);
 
 // คิวรีเพื่อดึงข้อมูลรายจ่ายรายเดือนจาก tbl_newproduct
+
 $queryMonthlyExpenses = $condb->prepare("
     SELECT 
         DATE_FORMAT(dateCreate, '%Y-%m') AS order_month,
@@ -34,8 +35,11 @@ $queryMonthlyExpenses = $condb->prepare("
     GROUP BY order_month 
     ORDER BY order_month ASC
 ");
+
 $queryMonthlyExpenses->execute();
 $monthlyExpenses = $queryMonthlyExpenses->fetchAll(PDO::FETCH_ASSOC);
+
+
 
 // คิวรีเพื่อดึงข้อมูลรายรับรายปี
 $queryYearlyRevenue = $condb->prepare("
@@ -79,6 +83,8 @@ $monthlyRevenueValues = array_column($monthlyRevenues, 'revenue');
 $monthlyProfitValues = array_column($monthlyProfits, 'profit');
 $monthlyExpenseValues = array_column($monthlyExpenses, 'expenses');
 
+
+
 // เตรียมข้อมูลสำหรับกราฟรายปี
 $yearlyDates = array_column($yearlyRevenues, 'order_year');
 $yearlyRevenueValues = array_column($yearlyRevenues, 'revenue');
@@ -104,6 +110,7 @@ $yearlyExpenseValues = array_column($yearlyExpenses, 'expenses');
                 <div class="row mb-2">
                     <div class="col-sm-6">
                         <h1>Dashboard รายรับ-จ่ายและกำไร </h1>
+                        
                     </div>
                 </div>
             </div>
@@ -146,49 +153,49 @@ $yearlyExpenseValues = array_column($yearlyExpenses, 'expenses');
                                 </div>
 
                                 <div class="col-sm-3">
-    <label for="yearSelector">เลือกปี</label>
-    <select id="yearSelector" class="form-control">
-        <option value="">ทุกปี</option>
-        <?php 
-        // ดึงปีปัจจุบัน
-        $currentYear = date("Y");
+                                    <label for="yearSelector">เลือกปี</label>
+                                    <select id="yearSelector" class="form-control">
+                                        <option value="">ทุกปี</option>
+                                        <?php 
+                                    // ดึงปีปัจจุบัน
+                                    $currentYear = date("Y") ;
 
-        // แสดงปีที่มีอยู่ใน $yearlyDates
-        foreach ($yearlyDates as $year) { 
-            // แสดงปีจาก $yearlyDates หากปีนั้นไม่เกิน 5 ปีที่ผ่านมา
-            if ($year >= $currentYear - 5 && $year <= $currentYear) {
-        ?>
-            <option value="<?= $year ?>"><?= $year ?></option>
-        <?php 
-            }
-        } 
+                                    // แสดงปีที่มีอยู่ใน $yearlyDates
+                                    foreach ($yearlyDates as $year) { 
+                                        // แสดงปีจาก $yearlyDates หากปีนั้นไม่เกิน 5 ปีที่ผ่านมา
+                                        if ($year >= $currentYear - 5 && $year <= $currentYear) {
+                                    ?>
+                                        <option value="<?= $year ?>"><?= $year ?></option>
+                                        <?php 
+                                            }
+                                        } 
 
-        // แสดงปีย้อนหลัง 5 ปีจากปีปัจจุบัน
-        for ($i = 0; $i <= 5; $i++) {
-            $yearOption = $currentYear - $i;
-            if (!in_array($yearOption, $yearlyDates)) { // ตรวจสอบว่าไม่มีปีนี้ใน $yearlyDates แล้วเพิ่มเข้าไป
-        ?>
-            <option value="<?= $yearOption ?>"><?= $yearOption ?></option>
-        <?php 
-            }
-        } 
-        ?>
-    </select>
-</div>
+                                        // แสดงปีย้อนหลัง 5 ปีจากปีปัจจุบัน
+                                        for ($i = 0; $i <= 5; $i++) {
+                                            $yearOption = $currentYear - $i;
+                                            if (!in_array($yearOption, $yearlyDates)) { // ตรวจสอบว่าไม่มีปีนี้ใน $yearlyDates แล้วเพิ่มเข้าไป
+                                        ?>
+                                        <option value="<?= $yearOption ?>"><?= $yearOption ?></option>
+                                        <?php 
+                                                    }
+                                                } 
+                                                ?>
+                                    </select>
+                                </div>
 
 
-                            <div class="row">
-                                <div class="col-12">
-                                    <h3>กราฟรายรับ-จ่ายและกำไรรายปี</h3>
-                                    <canvas id="yearlyCombinedChart"></canvas>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h3>กราฟรายรับ-จ่ายและกำไรรายปี</h3>
+                                        <canvas id="yearlyCombinedChart"></canvas>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-    </div>
-    </section>
+        </section>
     </div>
 
     <script>
@@ -196,79 +203,77 @@ $yearlyExpenseValues = array_column($yearlyExpenses, 'expenses');
     document.getElementById('yearSelector').addEventListener('change', updateCharts);
 
     function updateCharts() {
-        const selectedMonth = document.getElementById('monthSelector').value;
-        const selectedYear = document.getElementById('yearSelector').value;
+    const selectedMonth = document.getElementById('monthSelector').value;
+    const selectedYear = document.getElementById('yearSelector').value;
 
-        // ฟิลเตอร์ข้อมูลรายเดือน
-        const filteredMonthlyDates = <?= json_encode($monthlyDates); ?>.filter(date => {
-            const [year, month] = date.split('-');
-            return (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year ===
-                selectedYear);
-        });
+    // ฟิลเตอร์ข้อมูลรายเดือน
+    const filteredMonthlyDates = <?= json_encode($monthlyDates); ?>.filter(date => {
+        const [year, month] = date.split('-');
+        return (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year === selectedYear);
+    });
 
-        const filteredMonthlyRevenueValues = <?= json_encode($monthlyRevenueValues); ?>.filter((_, index) => {
-            const [year, month] = <?= json_encode($monthlyDates); ?>[index].split('-');
-            return (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year ===
-                selectedYear);
-        });
+    const filteredMonthlyRevenueValues = <?= json_encode($monthlyRevenueValues); ?>.filter((_, index) => {
+        const [year, month] = <?= json_encode($monthlyDates); ?>[index].split('-');
+        return (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year === selectedYear);
+    });
 
-        const filteredMonthlyProfitValues = <?= json_encode($monthlyProfitValues); ?>.filter((_, index) => {
-            const [year, month] = <?= json_encode($monthlyDates); ?>[index].split('-');
-            return (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year ===
-                selectedYear);
-        });
+    const filteredMonthlyProfitValues = <?= json_encode($monthlyProfitValues); ?>.filter((_, index) => {
+        const [year, month] = <?= json_encode($monthlyDates); ?>[index].split('-');
+        return (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year === selectedYear);
+    });
 
-        const filteredMonthlyExpenseValues = <?= json_encode($monthlyExpenseValues); ?>.filter((_, index) => {
-            const [year, month] = <?= json_encode($monthlyDates); ?>[index].split('-');
-            return (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year ===
-                selectedYear);
-        });
+    // ฟิลเตอร์ข้อมูลรายจ่ายให้แสดงเฉพาะเดือนที่มีรายจ่าย
+    const filteredMonthlyExpenseValues = <?= json_encode($monthlyExpenseValues); ?>.filter((_, index) => {
+    const [year, month] = <?= json_encode($monthlyDates); ?>[index].split('-');
+    const expense = <?= json_encode($monthlyExpenseValues); ?>[index];
+    return(selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year === selectedYear);
+});
 
-        // อัปเดตกราฟรายเดือน
-        monthlyCombinedChart.data.labels = filteredMonthlyDates.map(date => {
-            const d = new Date(date + '-01');
-            return d.toLocaleDateString('th-TH', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-        });
-        monthlyCombinedChart.data.datasets[0].data = filteredMonthlyRevenueValues;
-        monthlyCombinedChart.data.datasets[1].data = filteredMonthlyExpenseValues;
-        monthlyCombinedChart.data.datasets[2].data = filteredMonthlyProfitValues;
-        monthlyCombinedChart.update();
 
-        // ฟิลเตอร์ข้อมูลรายปี
-        const filteredYearlyDates = <?= json_encode($yearlyDates); ?>.filter(year => {
-            return selectedYear === '' || year === selectedYear;
+    // อัปเดตกราฟรายเดือน
+    monthlyCombinedChart.data.labels = filteredMonthlyDates.map(date => {
+        const d = new Date(date + '-01');
+        return d.toLocaleDateString('th-TH', {
+            month: '2-digit',
+            year: 'numeric'
         });
+    });
+    monthlyCombinedChart.data.datasets[0].data = filteredMonthlyRevenueValues;
+    monthlyCombinedChart.data.datasets[1].data = filteredMonthlyExpenseValues;
+    monthlyCombinedChart.data.datasets[2].data = filteredMonthlyProfitValues;
+    monthlyCombinedChart.update();
 
-        const filteredYearlyRevenueValues = <?= json_encode($yearlyRevenueValues); ?>.filter((_, index) => {
-            return selectedYear === '' || <?= json_encode($yearlyDates); ?>[index] === selectedYear;
-        });
+    // ฟิลเตอร์ข้อมูลรายปี
+    const filteredYearlyDates = <?= json_encode($yearlyDates); ?>.filter(year => {
+        return selectedYear === '' || year === selectedYear;
+    });
 
-        const filteredYearlyProfitValues = <?= json_encode($yearlyProfitValues); ?>.filter((_, index) => {
-            return selectedYear === '' || <?= json_encode($yearlyDates); ?>[index] === selectedYear;
-        });
+    const filteredYearlyRevenueValues = <?= json_encode($yearlyRevenueValues); ?>.filter((_, index) => {
+        return selectedYear === '' || <?= json_encode($yearlyDates); ?>[index] === selectedYear;
+    });
 
-        const filteredYearlyExpenseValues = <?= json_encode($yearlyExpenseValues); ?>.filter((_, index) => {
-            return selectedYear === '' || <?= json_encode($yearlyDates); ?>[index] === selectedYear;
-        });
+    const filteredYearlyProfitValues = <?= json_encode($yearlyProfitValues); ?>.filter((_, index) => {
+        return selectedYear === '' || <?= json_encode($yearlyDates); ?>[index] === selectedYear;
+    });
 
-        // อัปเดตกราฟรายปี
-        yearlyCombinedChart.data.labels = filteredYearlyDates.map(date => {
-            const d = new Date(date + '-01-01');
-            return d.toLocaleDateString('th-TH', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
+    const filteredYearlyExpenseValues = <?= json_encode($yearlyExpenseValues); ?>.filter((_, index) => {
+        return selectedYear === '' || <?= json_encode($yearlyDates); ?>[index] === selectedYear;
+    });
+
+    // อัปเดตกราฟรายปี
+    yearlyCombinedChart.data.labels = filteredYearlyDates.map(date => {
+        const d = new Date(date + '-01-01');
+        return d.toLocaleDateString('th-TH', {
+            month: '2-digit',
+            year: 'numeric'
         });
-        yearlyCombinedChart.data.datasets[0].data = filteredYearlyRevenueValues;
-        yearlyCombinedChart.data.datasets[1].data = filteredYearlyExpenseValues;
-        yearlyCombinedChart.data.datasets[2].data = filteredYearlyProfitValues;
-        yearlyCombinedChart.update();
-    }
+    });
+    yearlyCombinedChart.data.datasets[0].data = filteredYearlyRevenueValues;
+    yearlyCombinedChart.data.datasets[1].data = filteredYearlyExpenseValues;
+    yearlyCombinedChart.data.datasets[2].data = filteredYearlyProfitValues;
+    yearlyCombinedChart.update();
+}
+
     </script>
 
     <script>
@@ -280,7 +285,6 @@ $yearlyExpenseValues = array_column($yearlyExpenses, 'expenses');
             labels: <?= json_encode($monthlyDates); ?>.map(date => {
                 const d = new Date(date + '-01'); // Assuming the dates are year-month (e.g., '2024-01')
                 return d.toLocaleDateString('th-TH', {
-                    day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
                 });
@@ -341,8 +345,6 @@ $yearlyExpenseValues = array_column($yearlyExpenses, 'expenses');
             labels: <?= json_encode($yearlyDates); ?>.map(date => {
                 const d = new Date(date + '-01-01'); // Assuming the dates are just year (e.g., '2024')
                 return d.toLocaleDateString('th-TH', {
-                    day: '2-digit',
-                    month: '2-digit',
                     year: 'numeric'
                 });
             }),
