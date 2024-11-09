@@ -48,7 +48,7 @@ $rsType = $queryType->fetchAll();
                                         </div>
                                     </div>
 
-                                    <div class="form-group row">
+                                    <!-- <div class="form-group row">
                                         <label class="col-sm-2">จำนวนสินค้า</label>
                                         <div class="col-sm-4">
                                             <input type="number" name="product_qty" class="form-control" value="0" min="0" max="999" >
@@ -66,7 +66,7 @@ $rsType = $queryType->fetchAll();
                                         <div class="col-sm-4">
                                             <input type="number" name="product_price" class="form-control" value="0" min="0" max="99999"  >
                                         </div>
-                                    </div>
+                                    </div> -->
 
                                     <div class="form-group row">
                                         <label class="col-sm-2">ภาพสินค้า</label>
@@ -114,30 +114,18 @@ $rsType = $queryType->fetchAll();
 
 <?php 
 // เช็คค่าที่ส่งมาจากฟอร์ม
-if(isset($_POST['product_name']) && isset($_POST['ref_type_id']) && isset($_POST['product_price']) && isset($_POST['cost_price'])) {
+if(isset($_POST['product_name']) && isset($_POST['ref_type_id'])) {
 
     try {
         // ประกาศตัวแปรรับค่าจากฟอร์ม
         $ref_type_id = $_POST['ref_type_id'];
         $product_name = $_POST['product_name'];
-        $product_price = $_POST['product_price'];
-        $product_qty = $_POST['product_qty'];
-        $cost_price = $_POST['cost_price'];
+        $product_price = 0;
+        $product_qty = 0;
+        $cost_price = 0;
 
-        // ตรวจสอบว่า จำนวนสินค้า, ราคาทุน, และราคาสินค้า เป็น 0 เท่านั้น
-        if ($product_qty != 0 || $cost_price != 0 || $product_price != 0) {
-            echo '<script>
-                setTimeout(function() {
-                    swal({
-                        title: "กรุณากรอกค่า ราคาทุน ราคาสินค้า และ จำนวนสินค้า เป็น 0 เท่านั้น",
-                        type: "error"
-                    }, function() {
-                        window.location = "product.php";
-                    });
-                }, 1000);
-            </script>';
-        } else {
-            // เช็คชื่อสินค้าซ้ำในฐานข้อมูล
+        
+        // เช็คชื่อสินค้าซ้ำในฐานข้อมูล
             $stmtCheckProduct = $condb->prepare("SELECT * FROM tbl_product WHERE product_name = :product_name");
             $stmtCheckProduct->bindParam(':product_name', $product_name, PDO::PARAM_STR);
             $stmtCheckProduct->execute();
@@ -192,8 +180,7 @@ if(isset($_POST['product_name']) && isset($_POST['ref_type_id']) && isset($_POST
                             :cost_price,
                             :product_image
                         )");
-
-                        // bindParam
+                  // bindParam
                         $stmtInsertProduct->bindParam(':ref_type_id', $ref_type_id, PDO::PARAM_INT);
                         $stmtInsertProduct->bindParam(':product_name', $product_name, PDO::PARAM_STR);
                         $stmtInsertProduct->bindParam(':product_qty', $product_qty, PDO::PARAM_INT);
@@ -229,7 +216,7 @@ if(isset($_POST['product_name']) && isset($_POST['ref_type_id']) && isset($_POST
                     } //else เช็ตสกุลไฟล์
                 }//if upload
             } //else ตรวจสอบชื่อสินค้า
-        } //else ตรวจสอบค่าที่กรอก
+       // } //else ตรวจสอบค่าที่กรอก
     } //try
     catch(Exception $e) {
         echo '<script>

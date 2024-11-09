@@ -226,6 +226,7 @@ $yearlyExpenseValues = array_column($yearlyExpenses, 'expenses');
     const filteredMonthlyExpenseValues = <?= json_encode($monthlyExpenseValues); ?>.filter((_, index) => {
     const [year, month] = <?= json_encode($monthlyDates); ?>[index].split('-');
     const expense = <?= json_encode($monthlyExpenseValues); ?>[index];
+
     return(selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year === selectedYear);
 });
 
