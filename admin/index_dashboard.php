@@ -22,7 +22,6 @@ $queryTodayOut->execute();
 $rowTodayOut = $queryTodayOut->fetch(PDO::FETCH_ASSOC);
 
 
-
 $month = isset($_GET['month']) ? $_GET['month'] : date('m'); // ตั้งค่าเป็นเดือนปัจจุบันโดยอัตโนมัติ
 $year = isset($_GET['year']) ? $_GET['year'] : date('Y'); // ตั้งค่าเป็นปีปัจจุบันโดยอัตโนมัติ
 

@@ -48,14 +48,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 // ตรวจสอบว่ารถเข็นมีสินค้าอยู่หรือไม่
+
 if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
-    echo "<div class='alert alert-warning text-center' role='alert'>
-            <h4 class='alert-heading'>🚫 รถเข็นของคุณยังไม่มีสินค้า</h4>
-            <p class='mb-0'>กรุณาไปที่หน้าสินค้าเพื่อเลือกสินค้าเพิ่มเติม!</p>
-            <p><a href='product.php' class='btn btn-primary mt-3'>กลับไปยังหน้าสินค้า</a></p>
+    echo "<div class='alert alert-warning text-center p-5' role='alert'>
+            <div class='d-flex justify-content-center'>
+                <div class='alert-icon'>
+                    <i class='bi bi-cart-x' style='font-size: 4rem;'></i>
+                </div>
+            </div>
+            <h4 class='alert-heading mb-3'>🚫 รถเข็นของคุณยังไม่มีสินค้า</h4>
+            <p class='lead mb-4'>กรุณาไปที่หน้าสินค้าเพื่อเลือกสินค้าเพิ่มเติม!</p>
+            <p>
+                <a href='product.php' class='btn btn-primary btn-lg mt-3 px-4 py-2' role='button'>
+                    ไปยังหน้าสินค้า
+                </a>
+            </p>
           </div>";
     exit();
 }
+
+
 
 // สร้างรายการสินค้าที่อยู่ในรถเข็น
 $cartItems = $_SESSION['cart'];
