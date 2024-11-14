@@ -227,8 +227,9 @@ $yearlyExpenseValues = array_column($yearlyExpenses, 'expenses');
             const [year, month] = <?= json_encode($monthlyDates); ?>[index].split('-');
             const expense = <?= json_encode($monthlyExpenseValues); ?>[index];
 
-            return (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' || year ===
-                selectedYear);
+            // เงื่อนไขตรวจสอบว่ามีรายจ่ายในเดือนนั้นหรือไม่
+            return expense > 0 && (selectedMonth === '' || month === selectedMonth) && (selectedYear === '' ||
+                year === selectedYear);
         });
 
 

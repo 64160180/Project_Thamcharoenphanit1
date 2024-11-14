@@ -13,8 +13,6 @@ session_start();
       include 'type_delete.php';
   }else if($act == 'edit'){
         include 'type_form_edit.php';
- }else if ($act== 'editmini'){
-        include 'type_form_edit_minimum.php';
   }else{
       include 'type_list.php';
   }

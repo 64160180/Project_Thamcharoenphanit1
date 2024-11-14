@@ -1,6 +1,6 @@
 <?php
 // คิวรี่ข้อมูลสมาชิก
-$querytype = $condb->prepare("SELECT * FROM tbl_type");
+$querytype = $condb->prepare("SELECT * FROM tbl_type ORDER BY type_name ASC");
 $querytype->execute();
 $rstype = $querytype->fetchAll();
 ?>  
@@ -33,10 +33,8 @@ $rstype = $querytype->fetchAll();
                                 <thead>
                                     <tr class="table-info">
                                         <th width="5%" class="text-center">No.</th>
-                                        <th width="55%">หมวดหมู่สินค้า</th>
-                                        <th width="10%" class="text-center">จำนวนขั้นต่ำ</th>
+                                        <th width="50%">หมวดหมู่สินค้า</th>
                                         <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
-                                            <th width="10%" class="text-center">แก้ไขขั้นต่ำสินค้า</th>
                                             <th width="5%" class="text-center">แก้ไข</th> 
                                             <th width="5%" class="text-center">ลบ</th>
                                         <?php } ?>
@@ -44,19 +42,12 @@ $rstype = $querytype->fetchAll();
                                 </thead>
                                 <tbody>
                                     <?php 
-                                    $i = 1; // เริ่มต้นหมายเลข
+                                    $i =    1; // เริ่มต้นหมายเลข
                                     foreach ($rstype as $row) { ?>
                                         <tr>
                                             <td align="center"><?php echo $i++; ?></td>
                                             <td><?= $row['type_name']; ?></td>
-
-                                            <td align="center"><?= $row['type_minimum']; ?></td>
                                             
-                                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
-                                            <td align="center">
-                                            <a href="type.php?id=<?= $row['type_id']; ?>&act=editmini" class="btn btn-primary btn-sm">แก้ไขจำนวนขั้นต่ำ</a>
-                                            </td>
-                                            <?php } ?>
 
                                             <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
                                                 <td align="center"> 
@@ -65,7 +56,6 @@ $rstype = $querytype->fetchAll();
                                                 </td>
                                             <?php } ?>
 
-                                            
                                             <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
                                                 <td align="center">
                                                     <a href="type.php?id=<?= $row['type_id']; ?>&act=delete" class="btn btn-danger btn-sm" onclick="return confirm('ยืนยันการลบข้อมูล??');">ลบ</a>

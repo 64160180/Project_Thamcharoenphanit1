@@ -12,14 +12,11 @@ try {
     $condb->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // จำนวนสินค้าที่เหลือน้อยกว่า ขั้นต่ำที่กำหนด
-    $stmtCountLowStock = $condb->prepare("SELECT a.product_name,a.product_qty,b.type_minimum FROM tbl_product a left JOIN tbl_type b on a.ref_type_id = b.type_id WHERE a.product_qty < b.type_minimum;");
+    $stmtCountLowStock = $condb->prepare("SELECT a.product_name, a.product_qty, a.product_minimum FROM tbl_product a WHERE a.product_qty < a.product_minimum;");
     $stmtCountLowStock->execute();
     $lowStockItems = $stmtCountLowStock->fetchAll(PDO::FETCH_ASSOC);
     
-    // // กิจกรรมที่ใกล้ถึงวันที่สิ้นสุดใน 7 วัน
-    // $stmtUpcomingEvents = $condb->prepare("SELECT title, end_date FROM tbl_event WHERE end_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY)");
-    // $stmtUpcomingEvents->execute();
-    // $upcomingEvents = $stmtUpcomingEvents->fetchAll(PDO::FETCH_ASSOC);
+    
     
 } catch (PDOException $e) {
     die("Connection failed: " . $e->getMessage());

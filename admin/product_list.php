@@ -1,6 +1,6 @@
 <?php 
 //คิวรี่ข้อมูลสมาชิก
-$queryproduct = $condb->prepare("SELECT p.id, p.product_name, p.product_qty, p.product_price, p.product_image, p.cost_price, t.type_name
+$queryproduct = $condb->prepare("SELECT p.id, p.product_name, p.product_qty, p.product_price, p.product_image, p.cost_price, p.product_minimum, t.type_name
 FROM tbl_product as p
 INNER JOIN tbl_type as t ON p.ref_type_id = t.type_id
 GROUP BY p.id");
@@ -16,9 +16,9 @@ $rsproduct = $queryproduct->fetchAll();
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                <title>จัดการข้อมูลสินค้า-ธรรมเจริญพาณิช</title>
+                    <title>จัดการข้อมูลสินค้า-ธรรมเจริญพาณิช</title>
                     <h1>จัดการข้อมูลสินค้า
-                    <a href="product.php?act=add" class="btn btn-primary">+เพิ่มข้อมูล</a>
+                        <a href="product.php?act=add" class="btn btn-primary">+เพิ่มข้อมูล</a>
                     </h1>
                 </div>
             </div>
@@ -39,6 +39,7 @@ $rsproduct = $queryproduct->fetchAll();
                                         <th width="5%">ภาพ</th>
                                         <th width="10%">หมวดหมู่</th>
                                         <th width="20%">ชื่อสินค้า</th>
+                                        <th width="10%" class="text-center">จำนวนขั้นต่ำ</th>
                                         <th width="10%" class="text-center">จำนวนสินค้า</th>
                                         <th width="10%" class="text-center">ราคาทุน</th>
                                         <th width="10%" class="text-center">ราคาสินค้า</th>
@@ -54,13 +55,14 @@ $rsproduct = $queryproduct->fetchAll();
                                     <?php 
                                     $i = 1; //ตัวเลขเริ่มต้น
                                     foreach($rsproduct as $row){?>
-                                                        <tr>
+                                    <tr>
                                         <td align="center"> <?php echo $i++ ?> </td>
                                         <td>
                                             <img src="../assets/product_img/<?= $row['product_image']; ?>" width="70px">
                                         </td>
                                         <td><?=$row['type_name'];?></td>
                                         <td><?=$row['product_name'];?></td>
+                                        <td align="center"><?= $row['product_minimum']; ?></td>
                                         <td align="right"><?=$row['product_qty'];?></td>
                                         <td align="right"><?=number_format($row['cost_price'], 2);?></td>
                                         <td align="right"><?=number_format($row['product_price'], 2);?></td>

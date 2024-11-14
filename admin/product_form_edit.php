@@ -60,10 +60,12 @@ $rsType = $queryType->fetchAll();
                                         <label class="col-sm-2">หมวดหมู่สินค้า</label>
                                         <div class="col-sm-3">
                                             <select name="ref_type_id" class="form-control" required>
-                                                <option value="<?php echo $rowProduct['ref_type_id']; ?>">-- <?php echo $rowProduct['type_name']; ?> --</option>
+                                                <option value="<?php echo $rowProduct['ref_type_id']; ?>">--
+                                                    <?php echo $rowProduct['type_name']; ?> --</option>
                                                 <option disabled>-- เลือกข้อมูลใหม่ --</option>
                                                 <?php foreach($rsType as $row){ ?>
-                                                <option value="<?php echo $row['type_id']; ?>">-- <?php echo $row['type_name']; ?> --</option>
+                                                <option value="<?php echo $row['type_id']; ?>">--
+                                                    <?php echo $row['type_name']; ?> --</option>
                                                 <?php } ?>
                                             </select>
                                         </div>
@@ -73,7 +75,17 @@ $rsType = $queryType->fetchAll();
                                     <div class="form-group row">
                                         <label class="col-sm-2">ชื่อสินค้า</label>
                                         <div class="col-sm-7">
-                                            <input type="text" name="product_name" class="form-control" required placeholder="ชื่อสินค้า" value="<?php echo $rowProduct['product_name']?>">
+                                            <input type="text" name="product_name" class="form-control" required
+                                                placeholder="ชื่อสินค้า"
+                                                value="<?php echo $rowProduct['product_name']?>">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label class="col-sm-2">ขั้นต่ำที่กำหนด</label>
+                                        <div class="col-sm-4">
+                                            <input type="number" name="product_minimum" class="form-control" value="0"
+                                                min="0" max="999">
                                         </div>
                                     </div>
 
@@ -82,28 +94,31 @@ $rsType = $queryType->fetchAll();
                                         <label class="col-sm-2">ภาพสินค้า</label>
                                         <div class="col-sm-4">
                                             ภาพเก่า <br>
-                                            <img src="../assets/product_img/<?php echo $rowProduct['product_image']?>" width="200px">
+                                            <img src="../assets/product_img/<?php echo $rowProduct['product_image']?>"
+                                                width="200px">
                                             <br> <br>
-                                            เลือกภาพใหม่ 
+                                            เลือกภาพใหม่
                                             <br>
                                             <div class="input-group">
                                                 <div class="custom-file">
-                                                    <input type="file" name="product_image" class="custom-file-input" id="exampleInputFile" accept="image/*">
-                                                    <label class="custom-file-label" for="exampleInputFile">Choose file</label>
+                                                    <input type="file" name="product_image" class="custom-file-input"
+                                                        id="exampleInputFile" accept="image/*">
+                                                    <label class="custom-file-label" for="exampleInputFile">Choose
+                                                        file</label>
                                                 </div>
-                                                 
+
                                             </div>
                                         </div>
                                     </div>
                                     <script>
-                                        // ดักจับเหตุการณ์เมื่อมีการเปลี่ยนแปลงของ input type="file"
-                                        document.getElementById('exampleInputFile').addEventListener('change', function () {
-                                            // ตรวจสอบว่ามีไฟล์ที่ถูกเลือกหรือไม่
-                                            if (this.files && this.files[0]) {
-                                                // แสดงชื่อไฟล์ใน label
-                                                this.nextElementSibling.textContent = this.files[0].name;
-                                            }
-                                        });
+                                    // ดักจับเหตุการณ์เมื่อมีการเปลี่ยนแปลงของ input type="file"
+                                    document.getElementById('exampleInputFile').addEventListener('change', function() {
+                                        // ตรวจสอบว่ามีไฟล์ที่ถูกเลือกหรือไม่
+                                        if (this.files && this.files[0]) {
+                                            // แสดงชื่อไฟล์ใน label
+                                            this.nextElementSibling.textContent = this.files[0].name;
+                                        }
+                                    });
                                     </script>
 
                                     <!-- ปุ่มบันทึกและยกเลิก -->
@@ -111,7 +126,8 @@ $rsType = $queryType->fetchAll();
                                         <label class="col-sm-2"></label>
                                         <div class="col-sm-4">
                                             <input type="hidden" name="id" value="<?php echo $rowProduct['id']?>">
-                                            <input type="hidden" name="oldImg" value="<?php echo $rowProduct['product_image']?>">
+                                            <input type="hidden" name="oldImg"
+                                                value="<?php echo $rowProduct['product_image']?>">
                                             <button type="submit" class="btn btn-primary ">บันทึก</button>
                                             <a href="product.php" class="btn btn-danger">ยกเลิก</a>
                                         </div>
@@ -137,6 +153,7 @@ if(isset($_POST['product_name']) && isset($_POST['ref_type_id'])) {
         // ประกาศตัวแปรรับค่าจากฟอร์ม
         $ref_type_id = $_POST['ref_type_id'];
         $product_name = $_POST['product_name'];
+        $product_minimum = $_POST['product_minimum'];
         $id = $_POST['id'];
         $upload = $_FILES['product_image']['name'];
 
@@ -168,13 +185,15 @@ if(isset($_POST['product_name']) && isset($_POST['ref_type_id'])) {
             // ไม่มีการอัพโหลดไฟล์
             $stmtUpdateProduct = $condb->prepare("UPDATE tbl_product SET
                 ref_type_id=:ref_type_id,
-                product_name=:product_name
+                product_name=:product_name,
+                product_minimum=:product_minimum
                 WHERE id=:id
             ");
             // bindParam
             $stmtUpdateProduct->bindParam(':id', $id, PDO::PARAM_INT);
             $stmtUpdateProduct->bindParam(':ref_type_id', $ref_type_id, PDO::PARAM_INT);
             $stmtUpdateProduct->bindParam(':product_name', $product_name, PDO::PARAM_STR);
+            $stmtUpdateProduct->bindParam(':product_minimum', $product_minimum, PDO::PARAM_INT);
             $result = $stmtUpdateProduct->execute();
             if($result){
                 echo '<script>
@@ -205,12 +224,14 @@ if(isset($_POST['product_name']) && isset($_POST['ref_type_id'])) {
                 $stmtUpdateProduct = $condb->prepare("UPDATE tbl_product SET
                     ref_type_id=:ref_type_id,
                     product_name=:product_name,
+                    product_minimum=:product_minimum,
                     product_image=:product_image
                     WHERE id=:id
                 ");
                 $stmtUpdateProduct->bindParam(':id', $id, PDO::PARAM_INT);
                 $stmtUpdateProduct->bindParam(':ref_type_id', $ref_type_id, PDO::PARAM_INT);
                 $stmtUpdateProduct->bindParam(':product_name', $product_name, PDO::PARAM_STR); 
+                $stmtUpdateProduct->bindParam(':product_minimum', $product_minimum, PDO::PARAM_INT);
                 $stmtUpdateProduct->bindParam(':product_image', $newname , PDO::PARAM_STR);
                 $result = $stmtUpdateProduct->execute();
                 if($result){

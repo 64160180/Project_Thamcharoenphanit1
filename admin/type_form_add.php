@@ -67,7 +67,6 @@ if(isset($_POST['type_name'])){
     try {
         // ประกาศตัวแปรรับค่าจากฟอร์ม
         $type_name = $_POST['type_name'];
-        $type_minimum = $_POST['type_minimum']; // รับค่าจากฟอร์ม
         
         // เช็ค type_name ซ้ำ
         $stmttypeDetail = $condb->prepare("SELECT type_name FROM tbl_type WHERE type_name=:type_name");
@@ -88,11 +87,9 @@ if(isset($_POST['type_name'])){
             </script>';
         } else {
             // SQL insert
-            $stmtInserttype = $condb->prepare("INSERT INTO tbl_type (type_name, type_minimum) VALUES (:type_name, :type_minimum)");
-            
+            $stmtInserttype = $condb->prepare("INSERT INTO tbl_type (type_name) VALUES (:type_name)");
             // Bind parameters
             $stmtInserttype->bindParam(':type_name', $type_name, PDO::PARAM_STR);
-            $stmtInserttype->bindParam(':type_minimum', $type_minimum, PDO::PARAM_INT); // Bind type_minimum
             $result = $stmtInserttype->execute();
             
             $condb = null; // close connect db

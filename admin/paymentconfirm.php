@@ -39,7 +39,6 @@ foreach ($products as $product) {
     $updateProduct->execute();
 }
 
-
 // เคลียร์รถเข็น
 unset($_SESSION['cart']);
 
@@ -47,13 +46,14 @@ unset($_SESSION['cart']);
 ?>
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>การสั่งซื้อสำเร็จ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
 </head>
+
 <body>
     <div class="container mt-5 text-center">
         <div class="alert alert-success" role="alert">
@@ -63,7 +63,7 @@ unset($_SESSION['cart']);
             <p><a href="order.php" class="btn btn-primary">ไปยังหน้าประวัติการนำออกสินค้า</a></p>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

@@ -35,7 +35,8 @@ $rsType = $queryType->fetchAll();
                                             <select name="ref_type_id" class="form-control" required>
                                                 <option value="">-- เลือกข้อมูล --</option>
                                                 <?php foreach($rsType as $row){ ?>
-                                                <option value="<?php echo $row['type_id']; ?>">-- <?php echo $row['type_name']; ?> --</option>
+                                                <option value="<?php echo $row['type_id']; ?>">--
+                                                    <?php echo $row['type_name']; ?> --</option>
                                                 <?php } ?>
                                             </select>
                                         </div>
@@ -44,50 +45,41 @@ $rsType = $queryType->fetchAll();
                                     <div class="form-group row">
                                         <label class="col-sm-2">ชื่อสินค้า</label>
                                         <div class="col-sm-7">
-                                            <input type="text" name="product_name" class="form-control" required placeholder="ชื่อสินค้า">
-                                        </div>
-                                    </div>
-
-                                    <!-- <div class="form-group row">
-                                        <label class="col-sm-2">จำนวนสินค้า</label>
-                                        <div class="col-sm-4">
-                                            <input type="number" name="product_qty" class="form-control" value="0" min="0" max="999" >
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label class="col-sm-2">ราคาทุน</label>
-                                        <div class="col-sm-4">
-                                            <input type="number" name="cost_price" class="form-control" value="0" min="0" max="99999"  >
+                                            <input type="text" name="product_name" class="form-control" required
+                                                placeholder="ชื่อสินค้า">
                                         </div>
                                     </div>
 
                                     <div class="form-group row">
-                                        <label class="col-sm-2">ราคาสินค้า</label>
+                                        <label class="col-sm-2">ขั้นต่ำที่กำหนด</label>
                                         <div class="col-sm-4">
-                                            <input type="number" name="product_price" class="form-control" value="0" min="0" max="99999"  >
+                                            <input type="number" name="product_minimum" class="form-control" value="0"
+                                                min="0" max="999">
                                         </div>
-                                    </div> -->
+                                    </div>
 
                                     <div class="form-group row">
                                         <label class="col-sm-2">ภาพสินค้า</label>
                                         <div class="col-sm-4">
                                             <div class="input-group">
                                                 <div class="custom-file">
-                                                    <input type="file" name="product_image" class="custom-file-input" id="exampleInputFile" accept="image/*">
-                                                    <label class="custom-file-label" for="exampleInputFile">Choose file</label>
+                                                    <input type="file" name="product_image" class="custom-file-input"
+                                                        id="exampleInputFile" accept="image/*">
+                                                    <label class="custom-file-label" for="exampleInputFile">Choose
+                                                        file</label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <script>
-                                        // ดักจับเหตุการณ์เมื่อมีการเปลี่ยนแปลงของ input type="file"
-                                        document.getElementById('exampleInputFile').addEventListener('change', function () {
-                                            // ตรวจสอบว่ามีไฟล์ที่ถูกเลือกหรือไม่
-                                            if (this.files && this.files[0]) {
-                                                // แสดงชื่อไฟล์ใน label
-                                                this.nextElementSibling.textContent = this.files[0].name;
-                                            }
-                                        });
+                                    // ดักจับเหตุการณ์เมื่อมีการเปลี่ยนแปลงของ input type="file"
+                                    document.getElementById('exampleInputFile').addEventListener('change', function() {
+                                        // ตรวจสอบว่ามีไฟล์ที่ถูกเลือกหรือไม่
+                                        if (this.files && this.files[0]) {
+                                            // แสดงชื่อไฟล์ใน label
+                                            this.nextElementSibling.textContent = this.files[0].name;
+                                        }
+                                    });
                                     </script>
 
                                     <div class="form-group row">
@@ -120,6 +112,7 @@ if(isset($_POST['product_name']) && isset($_POST['ref_type_id'])) {
         // ประกาศตัวแปรรับค่าจากฟอร์ม
         $ref_type_id = $_POST['ref_type_id'];
         $product_name = $_POST['product_name'];
+        $product_minimum = $_POST['product_minimum'];
         $product_price = 0;
         $product_qty = 0;
         $cost_price = 0;
@@ -169,6 +162,7 @@ if(isset($_POST['product_name']) && isset($_POST['ref_type_id'])) {
                             product_qty,
                             product_price,
                             cost_price,
+                            product_minimum,
                             product_image                           
                         )
                         VALUES
@@ -178,6 +172,7 @@ if(isset($_POST['product_name']) && isset($_POST['ref_type_id'])) {
                             :product_qty,
                             :product_price,
                             :cost_price,
+                            :product_minimum,
                             :product_image
                         )");
                   // bindParam
@@ -186,6 +181,7 @@ if(isset($_POST['product_name']) && isset($_POST['ref_type_id'])) {
                         $stmtInsertProduct->bindParam(':product_qty', $product_qty, PDO::PARAM_INT);
                         $stmtInsertProduct->bindParam(':product_price', $product_price, PDO::PARAM_STR);
                         $stmtInsertProduct->bindParam(':cost_price', $cost_price, PDO::PARAM_STR);
+                        $stmtInsertProduct->bindParam(':product_minimum', $product_minimum, PDO::PARAM_INT);
                         $stmtInsertProduct->bindParam(':product_image', $newname, PDO::PARAM_STR);
                         $result = $stmtInsertProduct->execute();
                         $condb = null; // ปิดการเชื่อมต่อฐานข้อมูล
