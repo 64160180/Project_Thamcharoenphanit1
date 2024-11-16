@@ -21,8 +21,11 @@ $queryTodayOut = $condb->prepare("SELECT SUM(quantity) AS totalTodayOut FROM tbl
 $queryTodayOut->execute();
 $rowTodayOut = $queryTodayOut->fetch(PDO::FETCH_ASSOC);
 
-$month = isset($_GET['month']) ? $_GET['month'] : date('m'); // ตั้งค่าเป็นเดือนปัจจุบันโดยอัตโนมัติ
-$year = isset($_GET['year']) ? $_GET['year'] : date('Y'); // ตั้งค่าเป็นปีปัจจุบันโดยอัตโนมัติ
+$month = isset($_GET['month']) && is_numeric($_GET['month']) ? $_GET['month'] : date('m');
+$year = isset($_GET['year']) && is_numeric($_GET['year']) ? $_GET['year'] : date('Y');
+
+$rowTodayOut['totalTodayOut'] = $rowTodayOut['totalTodayOut'] ?: 0;
+
 
 // คิวรีเพื่อดึงข้อมูลรายรับและกำไร จาก tbl_order
 $queryRevenueAndProfit = $condb->prepare("
@@ -75,6 +78,99 @@ foreach ($results as $result) {
     $expenseValues[] = $expenseFound ? array_values($expenseFound)[0]['total_expenses'] : 0;
 }
 
+// ดึงข้อมูลสินค้าจาก `tbl_order` ที่ขายออกล่าสุด
+function getLatestOrder($condb) {
+    $queryLatestOrder = $condb->prepare("
+        SELECT 
+            product_id, -- แก้ไขให้ใช้ product_id
+            sell_price,
+            quantity AS sell_qty
+        FROM tbl_order
+        WHERE DATE(date_out) = CURDATE() -- เฉพาะรายการขายวันนี้
+        ORDER BY date_out DESC
+        LIMIT 1
+    ");
+    $queryLatestOrder->execute();
+    return $queryLatestOrder->fetch(PDO::FETCH_ASSOC);
+}
+
+
+// ดึงข้อมูลสินค้าที่ค้างอยู่ในคลัง
+function getStockData($condb, $productId) {
+    $queryStock = $condb->prepare("
+        SELECT 
+            product_qty AS current_qty,
+            cost_price AS current_cost_price
+        FROM tbl_product
+        WHERE id = :product_id
+    ");
+    $queryStock->bindParam(':product_id', $productId, PDO::PARAM_INT);
+    $queryStock->execute();
+    return $queryStock->fetch(PDO::FETCH_ASSOC);
+}
+
+// ดึงข้อมูลสินค้าที่เพิ่มเข้ามาใหม่
+function getNewStockData($condb, $productId) {
+    $queryNewStock = $condb->prepare("
+        SELECT 
+            SUM(newproduct_qty) AS new_qty,
+            AVG(newcost_price) AS new_cost_price
+        FROM tbl_newproduct
+        WHERE id = :product_id -- ใช้ id แทน ref_product_id
+    ");
+    $queryNewStock->bindParam(':product_id', $productId, PDO::PARAM_INT);
+    $queryNewStock->execute();
+    return $queryNewStock->fetch(PDO::FETCH_ASSOC);
+}
+
+
+// คำนวณค่าเฉลี่ยต้นทุน
+function calculateAverageCost($currentQty, $currentCostPrice, $newQty, $newCostPrice) {
+    $totalQty = $currentQty + $newQty;
+    return $totalQty > 0
+        ? (($currentQty * $currentCostPrice) + ($newQty * $newCostPrice)) / $totalQty
+        : 0;
+}
+
+// คำนวณกำไร
+function calculateProfit($sellPrice, $averageCostPrice, $sellQty) {
+    return ($sellPrice - $averageCostPrice) * $sellQty;
+}
+
+// ดึงข้อมูลคำสั่งซื้อสินค้าล่าสุด
+$latestOrder = getLatestOrder($condb);
+
+if ($latestOrder) {
+    $productId = $latestOrder['product_id'];
+    $sellPrice = $latestOrder['sell_price'];
+    $sellQty = $latestOrder['sell_qty'];
+
+    // ดึงข้อมูลสินค้าค้างคลัง
+    $stockData = getStockData($condb, $productId);
+    $currentQty = $stockData['current_qty'] ?: 0;
+    $currentCostPrice = $stockData['current_cost_price'] ?: 0;
+
+    // ดึงข้อมูลสินค้าที่เพิ่มเข้ามาใหม่
+    $newStockData = getNewStockData($condb, $productId);
+    $newQty = $newStockData['new_qty'] ?: 0;
+    $newCostPrice = $newStockData['new_cost_price'] ?: 0;
+
+    // คำนวณค่าเฉลี่ยต้นทุน
+    $averageCostPrice = calculateAverageCost($currentQty, $currentCostPrice, $newQty, $newCostPrice);
+
+    // คำนวณกำไร
+    $profit = calculateProfit($sellPrice, $averageCostPrice, $sellQty);
+
+    $results[] = [
+        'product_id' => $productId,
+        'average_cost_price' => number_format($averageCostPrice, 2),
+        'profit' => number_format($profit, 2)
+    ];
+
+} else {
+// ไม่แสดงผลที่หน้าจอ แต่สามารถจัดการกรณีไม่มีคำสั่งซื้อได้ที่นี่
+$results[] = 'ไม่มีคำสั่งซื้อสินค้าประจำเดือนและปีนี้';
+}
 
 
 ?>
@@ -145,6 +241,7 @@ foreach ($results as $result) {
                                         </div>
                                     </div>
                                 </div>
+
 
                                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
                                 <form method="GET" action="">
@@ -250,8 +347,6 @@ foreach ($results as $result) {
                             });
                             <?php endif; ?>
                             </script>
-
-
 
                         </div>
                     </div>

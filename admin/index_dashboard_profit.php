@@ -88,6 +88,113 @@ $yearlyDates = array_column($yearlyRevenues, 'order_year');
 $yearlyRevenueValues = array_column($yearlyRevenues, 'revenue');
 $yearlyProfitValues = array_column($yearlyProfits, 'profit');
 $yearlyExpenseValues = array_column($yearlyExpenses, 'expenses');
+
+// ดึงข้อมูลสินค้าจาก `tbl_order` ที่ขายออกในเดือนและปีที่กำหนด
+function getMonthlyOrder($condb, $month, $year) {
+    $queryMonthlyOrder = $condb->prepare("
+        SELECT 
+            product_id, -- แก้ไขให้ใช้ product_id
+            sell_price,
+            quantity AS sell_qty
+        FROM tbl_order
+        WHERE MONTH(date_out) = :month AND YEAR(date_out) = :year
+        ORDER BY date_out DESC
+    ");
+    $queryMonthlyOrder->bindParam(':month', $month, PDO::PARAM_INT);
+    $queryMonthlyOrder->bindParam(':year', $year, PDO::PARAM_INT);
+    $queryMonthlyOrder->execute();
+    return $queryMonthlyOrder->fetchAll(PDO::FETCH_ASSOC); // ดึงข้อมูลหลายแถว
+}
+
+// ดึงข้อมูลสินค้าที่ค้างอยู่ในคลัง
+function getStockData($condb, $productId) {
+    $queryStock = $condb->prepare("
+        SELECT 
+            product_qty AS current_qty,
+            cost_price AS current_cost_price
+        FROM tbl_product
+        WHERE id = :product_id
+    ");
+    $queryStock->bindParam(':product_id', $productId, PDO::PARAM_INT);
+    $queryStock->execute();
+    return $queryStock->fetch(PDO::FETCH_ASSOC);
+}
+
+// ดึงข้อมูลสินค้าที่เพิ่มเข้ามาใหม่
+function getNewStockData($condb, $productId) {
+    $queryNewStock = $condb->prepare("
+        SELECT 
+            SUM(newproduct_qty) AS new_qty,
+            AVG(newcost_price) AS new_cost_price
+        FROM tbl_newproduct
+        WHERE id = :product_id -- ใช้ id แทน ref_product_id
+    ");
+    $queryNewStock->bindParam(':product_id', $productId, PDO::PARAM_INT);
+    $queryNewStock->execute();
+    return $queryNewStock->fetch(PDO::FETCH_ASSOC);
+}
+
+// คำนวณค่าเฉลี่ยต้นทุน
+function calculateAverageCost($currentQty, $currentCostPrice, $newQty, $newCostPrice) {
+    $totalQty = $currentQty + $newQty;
+    return $totalQty > 0
+        ? (($currentQty * $currentCostPrice) + ($newQty * $newCostPrice)) / $totalQty
+        : 0;
+}
+
+// คำนวณกำไร
+function calculateProfit($sellPrice, $averageCostPrice, $sellQty) {
+    return ($sellPrice - $averageCostPrice) * $sellQty;
+}
+// ใช้เดือนและปีจากวันที่ปัจจุบัน
+$month = date('m');  // ดึงเดือนจากวันที่ปัจจุบัน
+$year = date('Y');   // ดึงปีจากวันที่ปัจจุบัน
+
+// ดึงข้อมูลคำสั่งซื้อสินค้าประจำเดือนและปี
+$monthlyOrders = getMonthlyOrder($condb, $month, $year);
+
+// เก็บผลลัพธ์ที่คำนวณไว้ในตัวแปร (เช่น array หรืออื่นๆ)
+$results = [];
+
+if ($monthlyOrders) {
+    foreach ($monthlyOrders as $order) {
+        $productId = $order['product_id'];
+        $sellPrice = $order['sell_price'];
+        $sellQty = $order['sell_qty'];
+
+        // ดึงข้อมูลสินค้าค้างคลัง
+        $stockData = getStockData($condb, $productId);
+        $currentQty = $stockData['current_qty'] ?: 0;
+        $currentCostPrice = $stockData['current_cost_price'] ?: 0;
+
+        // ดึงข้อมูลสินค้าที่เพิ่มเข้ามาใหม่
+        $newStockData = getNewStockData($condb, $productId);
+        $newQty = $newStockData['new_qty'] ?: 0;
+        $newCostPrice = $newStockData['new_cost_price'] ?: 0;
+
+        // คำนวณค่าเฉลี่ยต้นทุน
+        $averageCostPrice = calculateAverageCost($currentQty, $currentCostPrice, $newQty, $newCostPrice);
+
+        // คำนวณกำไร
+        $profit = calculateProfit($sellPrice, $averageCostPrice, $sellQty);
+
+        // เก็บผลลัพธ์ใน array
+        $results[] = [
+            'product_id' => $productId,
+            'average_cost_price' => number_format($averageCostPrice, 2),
+            'profit' => number_format($profit, 2)
+        ];
+    }
+} else {
+    // ไม่แสดงผลที่หน้าจอ แต่สามารถจัดการกรณีไม่มีคำสั่งซื้อได้ที่นี่
+    $results[] = 'ไม่มีคำสั่งซื้อสินค้าประจำเดือนและปีนี้';
+}
+
+// ตอนนี้ข้อมูลทั้งหมดถูกเก็บไว้ใน $results
+// ตัวอย่างการใช้งาน $results:
+// print_r($results); // หรือคุณสามารถใช้ข้อมูลนี้ต่อไป
+
+
 ?>
 
 <!DOCTYPE html>
