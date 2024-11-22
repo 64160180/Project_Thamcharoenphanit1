@@ -96,10 +96,8 @@ $products = $query->fetchAll(PDO::FETCH_ASSOC);
             <tr class="table-info">
                     <th>ภาพสินค้า</th>
                     <th>ชื่อสินค้า</th>
-                    <th>ราคาทุน</th>
                     <th>ราคาขาย</th>
                     <th>ราคารวม</th>
-                    <th>กำไร</th>
                     <th>จำนวน</th>
                     <th>การจัดการ</th>
                 </tr>
@@ -113,7 +111,6 @@ $products = $query->fetchAll(PDO::FETCH_ASSOC);
                     $quantity = $cartItems[$product['id']];
                     $totalPrice = $product['product_price'] * $quantity; // คำนวณราคารวม
                     $costPriceTotal = $product['cost_price'] * $quantity; // คำนวณราคาทุนรวม
-                    $profit = $totalPrice - $costPriceTotal; // คำนวณกำไร
                     
                     // เพิ่มยอดรวมราคาทุนและราคารวม
                     $totalCost += $costPriceTotal;
@@ -122,10 +119,8 @@ $products = $query->fetchAll(PDO::FETCH_ASSOC);
                 <tr>
                     <td><img src="../assets/product_img/<?= $product['product_image']; ?>" class="img-thumbnail" width="70px"></td>
                     <td><?= $product['product_name']; ?></td>
-                    <td><?= number_format($costPriceTotal, 2); ?> บาท</td>
                     <td><?= number_format($product['product_price'], 2); ?> บาท</td>
                     <td><?= number_format($totalPrice, 2); ?> บาท</td>
-                    <td><?= number_format($profit, 2); ?> บาท</td>
                     <td>
                         <form action="" method="post" class="d-inline">
                             <input type="hidden" name="product_id" value="<?= $product['id']; ?>">
@@ -143,11 +138,7 @@ $products = $query->fetchAll(PDO::FETCH_ASSOC);
                 <?php endforeach; ?>
             </tbody>
         </table>
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <h3>ยอดรวมทั้งหมด: <?= number_format($totalPriceAll, 2); ?> บาท</h3>
-            <h3>ยอดรวมราคาทุน: <?= number_format($totalCost, 2); ?> บาท</h3>
-            <h3>กำไรทั้งหมด: <?= number_format($totalPriceAll - $totalCost, 2); ?> บาท</h3>
-        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3"></div>
         
         <div class="text-center mt-4">
             <a href="product.php" class="btn btn-primary">กลับไปยังหน้าสินค้า</a>

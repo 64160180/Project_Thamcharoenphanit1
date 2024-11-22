@@ -32,14 +32,6 @@
                                     </div>
 
                                     <div class="form-group row">
-                                        <label class="col-sm-2">ขั้นต่ำที่กำหนด</label>
-                                        <div class="col-sm-4">
-                                            <input type="number" name="type_minimum" class="form-control" value="0"
-                                                min="0" max="999">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group row">
                                         <label class="col-sm-2"></label>
                                         <div class="col-sm-4">
                                             <button type="submit" class="btn btn-primary"> เพิ่มข้อมูล </button>

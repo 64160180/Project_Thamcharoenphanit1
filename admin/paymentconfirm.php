@@ -22,13 +22,24 @@ $products = $query->fetchAll(PDO::FETCH_ASSOC);
 foreach ($products as $product) {
     $quantity = $cartItems[$product['id']];
     
+    // คำนวณค่าเฉลี่ยต้นทุน (historical_cost)
+    $averageCostQuery = $condb->prepare("SELECT (SUM(newcost_price * newproduct_qty) / SUM(newproduct_qty)) AS average_cost
+                                         FROM tbl_newproduct 
+                                         WHERE newproduct_name = :product_name");
+    $averageCostQuery->bindParam(':product_name', $product['product_name']);
+    $averageCostQuery->execute();
+    $averageCostResult = $averageCostQuery->fetch(PDO::FETCH_ASSOC);
+    $historicalCost = $averageCostResult['average_cost']; // ค่าเฉลี่ยต้นทุน
+
     // เพิ่มข้อมูลลงใน tbl_order
-    $insertOrder = $condb->prepare("INSERT INTO tbl_order (product_id, product_name, cost_price, sell_price, quantity) VALUES (:product_id, :product_name, :cost_price, :sell_price, :quantity)");
+    $insertOrder = $condb->prepare("INSERT INTO tbl_order (product_id, product_name, cost_price, sell_price, quantity, historical_cost) 
+                                    VALUES (:product_id, :product_name, :cost_price, :sell_price, :quantity, :historical_cost)");
     $insertOrder->bindParam(':product_id', $product['id']);
     $insertOrder->bindParam(':product_name', $product['product_name']);
     $insertOrder->bindParam(':cost_price', $product['cost_price']);
     $insertOrder->bindParam(':sell_price', $product['product_price']);
     $insertOrder->bindParam(':quantity', $quantity);
+    $insertOrder->bindParam(':historical_cost', $historicalCost); // เพิ่ม historical_cost
     $insertOrder->execute();
     
     // ลดจำนวนสินค้าลงใน tbl_product
