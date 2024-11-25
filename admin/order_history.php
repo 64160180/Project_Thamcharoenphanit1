@@ -14,14 +14,16 @@ $queryRevenueAndProfit = $condb->prepare("
   SELECT 
     o.date_out, -- แสดงวันที่และเวลา
     o.product_name, -- เลือกชื่อสินค้า
+    o.sell_price, -- เพิ่มราคาขาย
     SUM(o.sell_price * o.quantity) AS revenue,
     SUM(o.quantity) AS total_quantity,
     SUM((o.sell_price - o.historical_cost) * o.quantity) AS profit, -- ใช้ historical_cost
     o.historical_cost -- ใช้ historical_cost จาก tbl_order
-  FROM tbl_order o
-  WHERE YEAR(o.date_out) = :year AND MONTH(o.date_out) = :month
-  GROUP BY o.date_out, o.product_name, o.historical_cost
-  ORDER BY o.date_out ASC, o.product_name ASC
+FROM tbl_order o
+WHERE YEAR(o.date_out) = :year AND MONTH(o.date_out) = :month
+GROUP BY o.date_out, o.product_name, o.historical_cost, o.sell_price
+ORDER BY o.date_out ASC, o.product_name ASC
+
 ");
 
 // Binding parameters
@@ -63,12 +65,13 @@ $results = $queryRevenueAndProfit->fetchAll(PDO::FETCH_ASSOC);
                                 <table id="example1" class="table table-bordered table-striped table-sm">
                                     <thead>
                                         <tr class="table-info">
-                                            <th width="15%">วันที่</th>
-                                            <th width="25%">ชื่อสินค้า</th>
-                                            <th width="15%">ค่าเฉลี่ยต้นทุน</th> <!-- ใช้ historical_cost -->
-                                            <th width="15%">กำไรรวม</th>
-                                            <th width="15%">รายได้รวม</th>
-                                            <th width="15%">จำนวนสินค้ารวม</th>
+                                            <th width="">วันที่</th>
+                                            <th width="">ชื่อสินค้า</th>
+                                            <th width="">ราคาขาย</th>
+                                            <th width="">ค่าเฉลี่ยต้นทุน</th> <!-- ใช้ historical_cost -->
+                                            <th width="">กำไรรวม</th>
+                                            <th width="">รายได้รวม</th>
+                                            <th width="">จำนวนสินค้ารวม</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -80,6 +83,7 @@ $results = $queryRevenueAndProfit->fetchAll(PDO::FETCH_ASSOC);
                                         <tr>
                                             <td><?= $dateTime->format('Y-m-d H:i:s'); ?></td> <!-- แสดงทั้งวันที่และเวลา -->
                                             <td><?= $result['product_name']; ?></td>
+                                            <td><?= number_format($result['sell_price'] ?? 0, 2); ?> บาท</td>
                                             <td><?= number_format($result['historical_cost'] ?? 0, 2); ?> บาท</td>
                                             <td><?= number_format($result['profit'] ?? 0, 2); ?> บาท</td>
                                             <td><?= number_format($result['revenue'] ?? 0, 2); ?> บาท</td>

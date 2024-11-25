@@ -125,8 +125,16 @@ foreach ($revenueProfitResults as $row) {
     $dates[] = $row['order_date'];
     $revenueValues[] = $row['revenue'];
     $profitValues[] = $row['profit'];
-    $expenseValues[] = isset($expenseMap[$row['order_date']]) ? $expenseMap[$row['order_date']] : 0;
+
+    // ตรวจสอบว่ามีค่าใช้จ่ายสำหรับวันเดียวกันหรือไม่
+    $expenseFound = array_filter($expenseResults, function($expense) use ($row) {
+        return $expense['expense_date'] === $row['order_date'];
+    });
+
+    // ถ้าพบค่าใช้จ่าย ให้เพิ่มค่าใช้จ่ายนั้น; ถ้าไม่พบ ให้เพิ่มค่าเป็น 0
+    $expenseValues[] = $expenseFound ? array_values($expenseFound)[0]['total_expense'] : 0;
 }
+
 ?>
 
 
